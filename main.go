@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/bedrock-gophers/invmenu/invmenu"
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/block"
+	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/player"
@@ -28,6 +30,7 @@ func main() {
 	srv.CloseOnProgramEnd()
 
 	srv.Listen()
+	invmenu.PlaceFakeChest(srv.World())
 
 	for srv.Accept(accept) {
 
@@ -37,6 +40,7 @@ func main() {
 func accept(p *player.Player) {
 	time.AfterFunc(1*time.Second, func() {
 		inv := inventory.New(27, func(slot int, before, after item.Stack) {})
+		inv.Handle(h{})
 
 		for i := range inv.Slots() {
 			_ = inv.SetItem(i, item.NewStack(block.StainedGlassPane{
@@ -45,4 +49,12 @@ func accept(p *player.Player) {
 		}
 		invmenu.ShowInventory(p, "", inv)
 	})
+}
+
+type h struct {
+	inventory.NopHandler
+}
+
+func (h) HandleTake(ctx *event.Context, slot int, it item.Stack) {
+	fmt.Println(slot)
 }

@@ -9,14 +9,8 @@ import (
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"sync"
 	"time"
 	_ "unsafe"
-)
-
-var (
-	fakeInventoriesOpen = map[*player.Player]*inventory.Inventory{}
-	fakeInventoriesMu   sync.Mutex
 )
 
 func ShowInventory(p *player.Player, name string, inv *inventory.Inventory) {
@@ -51,12 +45,8 @@ func ShowInventory(p *player.Player, name string, inv *inventory.Inventory) {
 
 	time.AfterFunc(time.Millisecond*50, func() {
 		nextID := session_nextWindowID(s)
-		session_updateOpenedPos(s, pos)
+		session_updateOpenedPos(s, cube.Pos{0, 255, 0})
 		session_updateOpenedWindow(s, inv)
-
-		fakeInventoriesMu.Lock()
-		fakeInventoriesOpen[p] = inv
-		fakeInventoriesMu.Unlock()
 
 		session_updateContainerOpenedState(s, true)
 		session_updateOpenedContainerID(s, uint32(nextID))
@@ -124,3 +114,7 @@ func session_updateOpenedContainerID(*session.Session, uint32)
 //
 //go:linkname session_sendInv github.com/df-mc/dragonfly/server/session.(*Session).sendInv
 func session_sendInv(*session.Session, *inventory.Inventory, uint32)
+
+func PlaceFakeChest(w *world.World) {
+	w.SetBlock(cube.Pos{0, -255, 0}, block.NewChest(), nil)
+}
