@@ -1,18 +1,17 @@
-module github.com/bedrock-gophers/invmenu
+module github.com/bedrock-gophers/inv
 
 go 1.21.4
 
 require (
+	github.com/df-mc/atomic v1.10.0
 	github.com/df-mc/dragonfly v0.9.13-0.20240207160743-f25a0df5bb3f
 	github.com/sandertv/gophertunnel v1.35.0
 	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
-	github.com/bedrock-gophers/packethandler v0.0.0-20230729205833-032986e43242 // indirect
 	github.com/brentp/intintmap v0.0.0-20190211203843-30dc0ade9af9 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/df-mc/atomic v1.10.0 // indirect
 	github.com/df-mc/goleveldb v1.1.9 // indirect
 	github.com/df-mc/worldupgrader v1.0.12 // indirect
 	github.com/go-gl/mathgl v1.1.0 // indirect
@@ -25,6 +24,7 @@ require (
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/sandertv/go-raknet v1.12.0 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1 // indirect
 	golang.org/x/image v0.9.0 // indirect
@@ -35,5 +35,3 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
-
-replace github.com/df-mc/dragonfly v0.9.13-0.20240207160743-f25a0df5bb3f => github.com/RestartFU/dragonfly v0.0.0-20240207184501-8c666acde401

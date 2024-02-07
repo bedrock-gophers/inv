@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bedrock-gophers/invmenu/invmenu"
+	"github.com/bedrock-gophers/inv/inv"
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/event"
@@ -10,6 +10,7 @@ import (
 	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/player/chat"
+	"github.com/sandertv/gophertunnel/minecraft/text"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -30,7 +31,7 @@ func main() {
 	srv.CloseOnProgramEnd()
 
 	srv.Listen()
-	invmenu.PlaceFakeChest(srv.World())
+	inv.PlaceFakeChest(srv.World())
 
 	for srv.Accept(accept) {
 
@@ -39,15 +40,15 @@ func main() {
 
 func accept(p *player.Player) {
 	time.AfterFunc(1*time.Second, func() {
-		inv := inventory.New(27, func(slot int, before, after item.Stack) {})
-		inv.Handle(h{})
+		in := inventory.New(27, func(slot int, before, after item.Stack) {})
+		in.Handle(h{})
 
-		for i := range inv.Slots() {
-			_ = inv.SetItem(i, item.NewStack(block.StainedGlassPane{
+		for i := range in.Slots() {
+			_ = in.SetItem(i, item.NewStack(block.StainedGlassPane{
 				Colour: item.ColourRed(),
 			}, 1))
 		}
-		invmenu.ShowInventory(p, "", inv)
+		inv.ShowMenu(p, in, text.Colourf("<red>Test</red>"))
 	})
 }
 
