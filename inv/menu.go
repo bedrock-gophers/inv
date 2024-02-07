@@ -52,3 +52,8 @@ func ShowMenu(p *player.Player, inv *inventory.Inventory, customName string) {
 	})
 	session_sendInv(s, inv, uint32(nextID))
 }
+func CloseMenu(p *player.Player) {
+	s := player_session(p)
+	pos := fetchPrivateField[atomic.Value[cube.Pos]](s, "openedPos")
+	s.ViewBlockUpdate(pos.Load(), block.Air{}, 0)
+}

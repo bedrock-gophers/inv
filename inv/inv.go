@@ -43,6 +43,14 @@ func updatePrivateField[T any](s *session.Session, name string, value T) {
 	privateFieldValue.Set(reflect.ValueOf(value))
 }
 
+// fetchPrivateField fetches a private field of a session.
+func fetchPrivateField[T any](s *session.Session, name string) T {
+	reflectedValue := reflect.ValueOf(s).Elem()
+	privateFieldValue := reflectedValue.FieldByName(name)
+
+	return privateFieldValue.Interface().(T)
+}
+
 // noinspection ALL
 //
 //go:linkname player_session github.com/df-mc/dragonfly/server/player.(*Player).session
