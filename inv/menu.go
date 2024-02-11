@@ -38,7 +38,7 @@ func ShowMenu(p *player.Player, inv *inventory.Inventory, customName string) {
 	})
 
 	nextID := session_nextWindowID(s)
-	updatePrivateField(s, "openedPos", *atomic.NewValue(cube.Pos{0, 255, 0}))
+	updatePrivateField(s, "openedPos", *atomic.NewValue(cube.Pos{0, -255, 0}))
 	updatePrivateField(s, "openedWindow", *atomic.NewValue(inv))
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
