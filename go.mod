@@ -4,7 +4,7 @@ go 1.21.4
 
 require (
 	github.com/df-mc/atomic v1.10.0
-	github.com/df-mc/dragonfly v0.9.13-0.20240207160743-f25a0df5bb3f
+	github.com/df-mc/dragonfly v0.9.13-0.20240209111632-1cb1df2a7b7a
 	github.com/sandertv/gophertunnel v1.35.0
 	github.com/sirupsen/logrus v1.9.3
 )
@@ -21,6 +21,7 @@ require (
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/muhammadmuzzammil1998/jsonc v1.0.0 // indirect
+	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/sandertv/go-raknet v1.12.0 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
