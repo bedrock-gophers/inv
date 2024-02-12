@@ -47,6 +47,7 @@ func updatePrivateField[T any](s *session.Session, name string, value T) {
 func fetchPrivateField[T any](s *session.Session, name string) T {
 	reflectedValue := reflect.ValueOf(s).Elem()
 	privateFieldValue := reflectedValue.FieldByName(name)
+	privateFieldValue = reflect.NewAt(privateFieldValue.Type(), unsafe.Pointer(privateFieldValue.UnsafeAddr())).Elem()
 
 	return privateFieldValue.Interface().(T)
 }
