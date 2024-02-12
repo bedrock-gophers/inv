@@ -15,7 +15,7 @@ import (
 
 // PlaceFakeChest places a fake chest at the world's spawn point.
 func PlaceFakeChest(w *world.World) {
-	w.SetBlock(cube.Pos{0, -255, 0}, block.NewChest(), nil)
+	w.SetBlock(cube.Pos{0, 255, 0}, block.NewChest(), nil)
 }
 
 // blockPosToProtocol converts a cube.Pos to a protocol.BlockPos.
