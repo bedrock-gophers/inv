@@ -5,6 +5,7 @@ import (
 	"github.com/bedrock-gophers/inv/inv"
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/block"
+	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/item/inventory"
@@ -31,7 +32,7 @@ func main() {
 	srv.CloseOnProgramEnd()
 
 	srv.Listen()
-	inv.PlaceFakeChest(srv.World())
+	inv.PlaceFakeChest(srv.World(), cube.Pos{0, 255, 0})
 
 	for srv.Accept(accept) {
 

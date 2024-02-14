@@ -18,6 +18,9 @@ var chestPos cube.Pos
 // PlaceFakeChest places a fake chest at the world's spawn point.
 func PlaceFakeChest(w *world.World, pos cube.Pos) {
 	w.SetBlock(pos, block.NewChest(), nil)
+	if _, ok := w.Block(pos).(block.Chest); !ok {
+		panic("failed to place chest")
+	}
 	chestPos = pos
 }
 
