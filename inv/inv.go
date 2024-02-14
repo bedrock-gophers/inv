@@ -13,9 +13,12 @@ import (
 	"unsafe"
 )
 
+var chestPos cube.Pos
+
 // PlaceFakeChest places a fake chest at the world's spawn point.
-func PlaceFakeChest(w *world.World) {
-	w.SetBlock(cube.Pos{0, 255, 0}, block.NewChest(), nil)
+func PlaceFakeChest(w *world.World, pos cube.Pos) {
+	w.SetBlock(pos, block.NewChest(), nil)
+	chestPos = pos
 }
 
 // blockPosToProtocol converts a cube.Pos to a protocol.BlockPos.
