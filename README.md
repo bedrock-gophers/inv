@@ -6,6 +6,7 @@ To create an inventory menu using the Inv library, follow these steps:
 
 Place Fake Chest: use the inv.PlaceFakeChest function to place a fake chest, essential for the library to function properly.
 ```go
+// Only run this once, after server start.
 inv.PlaceFakeChest(myWorld, cube.Pos{x, y, z)
 ```
 
