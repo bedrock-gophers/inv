@@ -49,8 +49,9 @@ type Closer interface {
 // SendMenu sends a menu to a player. The menu passed will be displayed to the player
 func SendMenu(p *player.Player, m Menu) {
 	s := player_session(p)
-	if _, ok := openedMenu(s); ok {
-		CloseContainer(p)
+
+	if m, ok := openedMenu(s); ok {
+		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
 	}
 
 	inv := inventory.New(len(m.items), func(slot int, before, after item.Stack) {})
