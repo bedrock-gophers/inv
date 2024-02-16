@@ -30,7 +30,7 @@ func main() {
 	srv.CloseOnProgramEnd()
 
 	srv.Listen()
-	inv.PlaceFakeContainer(srv.World(), cube.Pos{0, 50, 0}, inv.ContainerTypeChest)
+	inv.PlaceFakeContainer(srv.World(), cube.Pos{0, 255, 0})
 
 	for srv.Accept(accept) {
 
@@ -46,7 +46,7 @@ func accept(p *player.Player) {
 			stacks[i] = item.NewStack(block.StainedGlass{Colour: item.ColourRed()}, 1)
 		}
 
-		m := inv.NewMenu(sub, "test", inv.ContainerTypeChest).WithStacks(stacks...)
+		m := inv.NewMenu(sub, "test").WithStacks(stacks...)
 		inv.SendMenu(p, m)
 	})
 }
