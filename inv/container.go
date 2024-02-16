@@ -19,22 +19,24 @@ var (
 
 func init() {
 	t := time.NewTicker(time.Second / 10)
-	for range t.C {
-		menuMu.Lock()
-		menus := openedMenus
-		menuMu.Unlock()
-		for v, m := range menus {
-			s, ok := v.(*session.Session)
-			if !ok || s == session.Nop {
-				continue
-			}
-			opened := fetchPrivateField[atomic.Bool](s, "containerOpened")
-			windowID := fetchPrivateField[uint32](s, "openedContainerID")
-			if !opened.Load() && windowID == uint32(m.windowID) {
-				CloseContainer(s.Controllable().(*player.Player))
+	go func() {
+		for range t.C {
+			menuMu.Lock()
+			menus := openedMenus
+			menuMu.Unlock()
+			for v, m := range menus {
+				s, ok := v.(*session.Session)
+				if !ok || s == session.Nop {
+					continue
+				}
+				opened := fetchPrivateField[atomic.Bool](s, "containerOpened")
+				windowID := fetchPrivateField[uint32](s, "openedContainerID")
+				if !opened.Load() && windowID == uint32(m.windowID) {
+					CloseContainer(s.Controllable().(*player.Player))
+				}
 			}
 		}
-	}
+	}()
 }
 
 func openedMenu(v block.ContainerViewer) (Menu, bool) {
