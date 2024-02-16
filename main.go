@@ -51,7 +51,7 @@ func accept(p *player.Player) {
 		inv.SendMenu(p, m)
 
 		time.AfterFunc(1*time.Second, func() {
-			inv.SendMenu(p, inv.NewMenu(MySubmittable{}, "test").WithStacks(stacks...))
+			inv.UpdateMenu(p, inv.NewMenu(MySubmittable{}, "test").WithStacks(make([]item.Stack, 27)...))
 		})
 	})
 }

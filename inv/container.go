@@ -12,14 +12,14 @@ import (
 
 var (
 	menuMu            sync.Mutex
-	openedMenus       = map[block.ContainerViewer]Menu{}
+	lastMenu          = map[block.ContainerViewer]Menu{}
 	fakeContainersPos = map[byte]cube.Pos{}
 )
 
 func openedMenu(v block.ContainerViewer) (Menu, bool) {
 	menuMu.Lock()
 	defer menuMu.Unlock()
-	m, ok := openedMenus[v]
+	m, ok := lastMenu[v]
 	return m, ok
 }
 
@@ -54,7 +54,7 @@ func PlaceFakeContainer(w *world.World, pos cube.Pos) {
 func CloseContainer(p *player.Player) {
 	menuMu.Lock()
 	s := player_session(p)
-	m, ok := openedMenus[s]
+	m, ok := lastMenu[s]
 	if ok {
 		if s != session.Nop {
 			if closeable, ok := m.submittable.(Closer); ok {
@@ -65,7 +65,6 @@ func CloseContainer(p *player.Player) {
 				ServerSide: true,
 			})
 			s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
-			delete(openedMenus, s)
 		}
 	}
 	menuMu.Unlock()
@@ -79,10 +78,4 @@ func closeOldMenu(p *player.Player, mn Menu) {
 		}
 		s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
 	}
-
-	menuMu.Lock()
-	if m, ok := openedMenus[s]; ok && m.windowID == mn.windowID {
-		delete(openedMenus, s)
-	}
-	menuMu.Unlock()
 }

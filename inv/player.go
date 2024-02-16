@@ -45,10 +45,6 @@ func RedirectPlayerPackets(p *player.Player) {
 						closer.Close(p)
 					}
 					s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
-
-					menuMu.Lock()
-					delete(openedMenus, s)
-					menuMu.Unlock()
 				}
 			}
 

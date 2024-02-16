@@ -53,6 +53,11 @@ func SendMenu(p *player.Player, m Menu) {
 	sendMenu(p, m, false)
 }
 
+// UpdateMenu updates the menu that the player passed is currently viewing to the menu passed.
+func UpdateMenu(p *player.Player, m Menu) {
+	sendMenu(p, m, true)
+}
+
 func sendMenu(p *player.Player, m Menu, update bool) {
 	s := player_session(p)
 
@@ -103,7 +108,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	m.windowID = nextID
 
 	menuMu.Lock()
-	openedMenus[s] = m
+	lastMenu[s] = m
 	menuMu.Unlock()
 }
 
