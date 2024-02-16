@@ -38,6 +38,7 @@ func main() {
 }
 
 func accept(p *player.Player) {
+	inv.RedirectPlayerPackets(p)
 	time.AfterFunc(1*time.Second, func() {
 		sub := MySubmittable{}
 
@@ -48,6 +49,10 @@ func accept(p *player.Player) {
 
 		m := inv.NewMenu(sub, "test").WithStacks(stacks...)
 		inv.SendMenu(p, m)
+
+		time.AfterFunc(1*time.Second, func() {
+			inv.SendMenu(p, inv.NewMenu(MySubmittable{}, "test").WithStacks(stacks...))
+		})
 	})
 }
 
