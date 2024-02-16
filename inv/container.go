@@ -10,6 +10,28 @@ import (
 	"sync"
 )
 
+const (
+	// ContainerTypeChest is a container type for a chest.
+	ContainerTypeChest byte = iota
+	// ContainerTypeHopper is a container type for a hopper.
+	ContainerTypeHopper
+	// ContainerTypeDropper is a container type for a dropper.
+	ContainerTypeDropper
+)
+
+func blockFromContainerKind(t byte) world.Block {
+	switch t {
+	case ContainerTypeChest:
+		return block.NewChest()
+	case ContainerTypeHopper:
+		return hopper{}
+	case ContainerTypeDropper:
+		return dropper{}
+	default:
+		panic("invalid container type")
+	}
+}
+
 var (
 	menuMu       sync.Mutex
 	lastMenus    = map[block.ContainerViewer]Menu{}
@@ -35,24 +57,6 @@ func closeLastMenu(p *player.Player, mn Menu) {
 	menuMu.Lock()
 	delete(lastMenus, s)
 	menuMu.Unlock()
-}
-
-const (
-	// ContainerTypeChest is a container type for a chest.
-	ContainerTypeChest byte = iota
-	// ContainerTypeHopper is a container type for a hopper.
-	ContainerTypeHopper
-)
-
-func blockFromContainerKind(t byte) world.Block {
-	switch t {
-	case ContainerTypeChest:
-		return block.NewChest()
-	case ContainerTypeHopper:
-		return hopper{}
-	default:
-		panic("invalid container type")
-	}
 }
 
 // PlaceFakeContainer places a fake container at the position and world passed.

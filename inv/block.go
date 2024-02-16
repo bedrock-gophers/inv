@@ -11,6 +11,7 @@ import (
 
 func init() {
 	world.RegisterBlock(hopper{})
+	world.RegisterBlock(dropper{})
 }
 
 type nopContainer struct{}
@@ -22,13 +23,19 @@ func (nopContainer) Inventory() *inventory.Inventory {
 }
 
 type hopper struct{ nopContainer }
+type dropper struct{ nopContainer }
+type 
 
-func (hopper) Hash() uint64 {
-	return 913214
-}
-func (hopper) Model() world.BlockModel {
-	return model.Solid{}
-}
+func (hopper) Hash() uint64            { return 913214 }
+func (hopper) Model() world.BlockModel { return model.Solid{} }
 func (hopper) EncodeBlock() (string, map[string]any) {
 	return "minecraft:hopper", map[string]any{"facing_direction": int32(0), "toggle_bit": false}
 }
+
+func (dropper) Hash() uint64            { return 913215 }
+func (dropper) Model() world.BlockModel { return model.Solid{} }
+func (dropper) EncodeBlock() (string, map[string]any) {
+	return "minecraft:dropper", map[string]any{"facing_direction": int32(0), "toggle_bit": false}
+}
+
+

@@ -103,6 +103,8 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		containerType = protocol.ContainerTypeContainer
 	case ContainerTypeHopper:
 		containerType = protocol.ContainerTypeHopper
+	case ContainerTypeDropper:
+		containerType = protocol.ContainerTypeDropper
 	}
 
 	session_writePacket(s, &packet.ContainerOpen{
@@ -134,6 +136,8 @@ func createFakeInventoryNBT(name string, kind byte) map[string]interface{} {
 		m["id"] = "Chest"
 	case ContainerTypeHopper:
 		m["id"] = "Hopper"
+	case ContainerTypeDropper:
+		m["id"] = "Dropper"
 	}
 	return m
 }
