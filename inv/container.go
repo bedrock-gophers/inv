@@ -30,8 +30,8 @@ func init() {
 					continue
 				}
 				opened := fetchPrivateField[atomic.Bool](s, "containerOpened")
-				windowID := fetchPrivateField[uint32](s, "openedContainerID")
-				if !opened.Load() && windowID == uint32(m.windowID) {
+				windowID := fetchPrivateField[atomic.Uint32](s, "openedContainerID")
+				if !opened.Load() && windowID.Load() == uint32(m.windowID) {
 					CloseContainer(s.Controllable().(*player.Player))
 				}
 			}
