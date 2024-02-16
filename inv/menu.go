@@ -50,10 +50,6 @@ type Closer interface {
 func SendMenu(p *player.Player, m Menu) {
 	s := player_session(p)
 
-	if m, ok := openedMenu(s); ok {
-		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
-	}
-
 	inv := inventory.New(len(m.items), func(slot int, before, after item.Stack) {})
 	inv.Handle(handler{p: p, menu: m})
 	for i, it := range m.items {
@@ -87,6 +83,9 @@ func SendMenu(p *player.Player, m Menu) {
 		ContainerEntityUniqueID: -1,
 	})
 	session_sendInv(s, inv, uint32(nextID))
+	if m, ok := openedMenu(s); ok {
+		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
+	}
 	m.pos = pos
 
 	menuMu.Lock()
