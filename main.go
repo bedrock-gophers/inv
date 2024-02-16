@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-	fmt.Println(block.Chest{}.Hash())
 	log := logrus.New()
 	log.Formatter = &logrus.TextFormatter{ForceColors: true}
 	log.Level = logrus.DebugLevel
@@ -42,16 +41,16 @@ func accept(p *player.Player) {
 	time.AfterFunc(1*time.Second, func() {
 		sub := MySubmittable{}
 
-		var stacks = make([]item.Stack, 27)
-		for i := 0; i < 27; i++ {
+		var stacks = make([]item.Stack, 5)
+		for i := 0; i < 5; i++ {
 			stacks[i] = item.NewStack(block.StainedGlass{Colour: item.ColourRed()}, 1)
 		}
 
-		m := inv.NewMenu(sub, "test").WithStacks(stacks...)
+		m := inv.NewMenu(sub, "test", inv.ContainerTypeHopper).WithStacks(stacks...)
 		inv.SendMenu(p, m)
 
 		time.AfterFunc(1*time.Second, func() {
-			inv.UpdateMenu(p, inv.NewMenu(MySubmittable{}, "test").WithStacks(make([]item.Stack, 27)...))
+			//inv.UpdateMenu(p, inv.NewMenu(MySubmittable{}, "test").WithStacks(make([]item.Stack, 5)...))
 		})
 	})
 }

@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	menuMu            sync.Mutex
-	lastMenus         = map[block.ContainerViewer]Menu{}
-	fakeContainersPos = map[byte]cube.Pos{}
+	menuMu       sync.Mutex
+	lastMenus    = map[block.ContainerViewer]Menu{}
+	containerPos cube.Pos
 )
 
 func lastMenu(v block.ContainerViewer) (Menu, bool) {
@@ -40,16 +40,16 @@ func closeLastMenu(p *player.Player, mn Menu) {
 const (
 	// ContainerTypeChest is a container type for a chest.
 	ContainerTypeChest byte = iota
-	// ContainerTypeBarrel is a container type for a barrel.
-	ContainerTypeBarrel
+	// ContainerTypeHopper is a container type for a hopper.
+	ContainerTypeHopper
 )
 
 func blockFromContainerKind(t byte) world.Block {
 	switch t {
 	case ContainerTypeChest:
 		return block.NewChest()
-	case ContainerTypeBarrel:
-		return block.NewBarrel()
+	case ContainerTypeHopper:
+		return hopper{}
 	default:
 		panic("invalid container type")
 	}
@@ -57,11 +57,8 @@ func blockFromContainerKind(t byte) world.Block {
 
 // PlaceFakeContainer places a fake container at the position and world passed.
 func PlaceFakeContainer(w *world.World, pos cube.Pos) {
-	// TODO: Add support for other container types.
-	kind := ContainerTypeChest
-
-	w.SetBlock(pos, blockFromContainerKind(kind), nil)
-	fakeContainersPos[kind] = pos
+	w.SetBlock(pos, block.NewChest(), nil)
+	containerPos = pos
 }
 
 // CloseContainer closes the container that the session passed is currently viewing.

@@ -27,9 +27,8 @@ type Menu struct {
 }
 
 // NewMenu creates a new menu with the submittable passed, the name passed and the kind passed.
-func NewMenu(submittable Submittable, name string) Menu {
-	// TODO: Add support for other container types.
-	return Menu{name: name, submittable: submittable, kind: ContainerTypeChest}
+func NewMenu(submittable Submittable, name string, kind byte) Menu {
+	return Menu{name: name, submittable: submittable, kind: kind}
 }
 
 // WithStacks sets the stacks of the menu to the stacks passed.
@@ -92,16 +91,24 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		NBTData:  data,
 	})
 
-	updatePrivateField(s, "openedPos", *atomic.NewValue(fakeContainersPos[m.kind]))
+	updatePrivateField(s, "openedPos", *atomic.NewValue(containerPos))
 	updatePrivateField(s, "openedWindow", *atomic.NewValue(inv))
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
 
+	var containerType byte
+	switch m.kind {
+	case ContainerTypeChest:
+		containerType = protocol.ContainerTypeContainer
+	case ContainerTypeHopper:
+		containerType = protocol.ContainerTypeHopper
+	}
+
 	session_writePacket(s, &packet.ContainerOpen{
 		WindowID:                nextID,
 		ContainerPosition:       blockPos,
-		ContainerType:           0,
+		ContainerType:           containerType,
 		ContainerEntityUniqueID: -1,
 	})
 	session_sendInv(s, inv, uint32(nextID))
@@ -125,8 +132,8 @@ func createFakeInventoryNBT(name string, kind byte) map[string]interface{} {
 	switch kind {
 	case ContainerTypeChest:
 		m["id"] = "Chest"
-	case ContainerTypeBarrel:
-		m["id"] = "Barrel"
+	case ContainerTypeHopper:
+		m["id"] = "Hopper"
 	}
 	return m
 }
