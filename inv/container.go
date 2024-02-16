@@ -1,12 +1,14 @@
 package inv
 
 import (
+	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/df-mc/dragonfly/server/world"
 	"sync"
+	"time"
 )
 
 var (
@@ -14,6 +16,26 @@ var (
 	openedMenus       = map[block.ContainerViewer]Menu{}
 	fakeContainersPos = map[byte]cube.Pos{}
 )
+
+func init() {
+	t := time.NewTicker(time.Second / 10)
+	for range t.C {
+		menuMu.Lock()
+		menus := openedMenus
+		menuMu.Unlock()
+		for v, m := range menus {
+			s, ok := v.(*session.Session)
+			if !ok || s == session.Nop {
+				continue
+			}
+			opened := fetchPrivateField[atomic.Bool](s, "containerOpened")
+			windowID := fetchPrivateField[uint32](s, "openedContainerID")
+			if !opened.Load() && windowID == uint32(m.windowID) {
+				CloseContainer(s.Controllable().(*player.Player))
+			}
+		}
+	}
+}
 
 func openedMenu(v block.ContainerViewer) (Menu, bool) {
 	menuMu.Lock()

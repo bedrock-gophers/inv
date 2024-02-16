@@ -23,6 +23,8 @@ type Menu struct {
 	submittable Submittable
 	items       []item.Stack
 	pos         cube.Pos
+
+	windowID byte
 }
 
 // NewMenu creates a new menu with the submittable passed, the name passed and the kind passed.
@@ -92,6 +94,7 @@ func SendMenu(p *player.Player, m Menu) {
 	}
 
 	m.pos = pos
+	m.windowID = nextID
 
 	menuMu.Lock()
 	openedMenus[s] = m
