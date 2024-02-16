@@ -59,6 +59,9 @@ func SendMenu(p *player.Player, m Menu) {
 	}
 
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
+	if m, ok := openedMenu(s); ok && m.pos != pos {
+		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
+	}
 
 	s.ViewBlockUpdate(pos, blockFromContainerKind(m.kind), 0)
 	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)

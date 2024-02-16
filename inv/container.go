@@ -57,8 +57,12 @@ func CloseContainer(p *player.Player) {
 	m, ok := openedMenus[s]
 	if ok {
 		if s != session.Nop {
+			if closeable, ok := m.submittable.(Closer); ok {
+				closeable.Close(p)
+			}
 			session_writePacket(s, &packet.ContainerClose{
-				WindowID: m.windowID,
+				WindowID:   m.windowID,
+				ServerSide: true,
 			})
 			s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
 			delete(openedMenus, s)
