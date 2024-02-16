@@ -8,7 +8,6 @@ import (
 	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
-	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"reflect"
@@ -20,14 +19,15 @@ import (
 type Menu struct {
 	name        string
 	kind        byte
-	submittable MenuSubmittable
+	submittable Submittable
 	items       []item.Stack
 	pos         cube.Pos
 }
 
 // NewMenu creates a new menu with the submittable passed, the name passed and the kind passed.
-func NewMenu(submittable MenuSubmittable, name string, kind byte) Menu {
-	return Menu{name: name, submittable: submittable, kind: kind}
+func NewMenu(submittable Submittable, name string) Menu {
+	// TODO: Add support for other container types.
+	return Menu{name: name, submittable: submittable, kind: ContainerTypeChest}
 }
 
 // WithStacks sets the stacks of the menu to the stacks passed.
@@ -36,12 +36,12 @@ func (m Menu) WithStacks(stacks ...item.Stack) Menu {
 	return m
 }
 
-// MenuSubmittable is a type that can be implemented by a Menu to be called when a menu is submitted.
-type MenuSubmittable interface {
+// Submittable is a type that can be implemented by a Menu to be called when a menu is submitted.
+type Submittable interface {
 	Submit(p *player.Player, it item.Stack)
 }
 
-// Closer is a type that can be implemented by a MenuSubmittable to be called when a menu is closed.
+// Closer is a type that can be implemented by a Submittable to be called when a menu is closed.
 type Closer interface {
 	Close(p *player.Player)
 }
@@ -63,7 +63,7 @@ func SendMenu(p *player.Player, m Menu) {
 	}
 
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
-	s.ViewBlockUpdate(pos, closerBlock(m.kind), 0)
+	s.ViewBlockUpdate(pos, blockFromContainerKind(m.kind), 0)
 	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
 
 	blockPos := blockPosToProtocol(pos)
@@ -91,18 +91,6 @@ func SendMenu(p *player.Player, m Menu) {
 	session_sendInv(s, inv, uint32(nextID))
 	m.pos = pos
 	openedMenus[s] = m
-}
-
-// closerBlock returns a block that represents the container type passed.
-func closerBlock(t byte) world.Block {
-	switch t {
-	case ContainerTypeChest:
-		return chest{block.NewChest()}
-	case ContainerTypeBarrel:
-		return barrel{block.NewBarrel()}
-	default:
-		panic("invalid container type")
-	}
 }
 
 // blockPosToProtocol converts a cube.Pos to a protocol.BlockPos.

@@ -4,6 +4,7 @@ import (
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/player"
+	"github.com/df-mc/dragonfly/server/session"
 	"github.com/df-mc/dragonfly/server/world"
 	"sync"
 )
@@ -34,7 +35,7 @@ func blockFromContainerKind(t byte) world.Block {
 
 // PlaceFakeContainer places a fake container at the position and world passed.
 func PlaceFakeContainer(w *world.World, pos cube.Pos, kind byte) {
-	w.SetBlock(pos, closerBlock(kind), nil)
+	w.SetBlock(pos, blockFromContainerKind(kind), nil)
 	fakeContainersPos[kind] = pos
 }
 
@@ -44,10 +45,12 @@ func CloseContainer(p *player.Player) {
 	s := player_session(p)
 	m, ok := openedMenus[s]
 	if ok {
-		if closeable, ok := m.submittable.(Closer); ok {
-			closeable.Close(p)
+		if s != session.Nop {
+			if closeable, ok := m.submittable.(Closer); ok {
+				closeable.Close(p)
+			}
+			s.ViewBlockUpdate(m.pos, block.Air{}, 0)
 		}
-		s.ViewBlockUpdate(m.pos, block.Air{}, 0)
 		delete(openedMenus, s)
 	}
 	menuMu.Unlock()
