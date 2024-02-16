@@ -11,7 +11,6 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"reflect"
-	"time"
 	"unsafe"
 	_ "unsafe"
 )
@@ -86,12 +85,6 @@ func SendMenu(p *player.Player, m Menu) {
 		ContainerEntityUniqueID: -1,
 	})
 	session_sendInv(s, inv, uint32(nextID))
-
-	if m, ok := openedMenu(s); ok && m.pos != pos {
-		time.AfterFunc(time.Millisecond*50, func() {
-			s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
-		})
-	}
 
 	m.pos = pos
 	m.windowID = nextID
