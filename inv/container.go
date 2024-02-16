@@ -15,6 +15,13 @@ var (
 	fakeContainersPos = map[byte]cube.Pos{}
 )
 
+func openedMenu(v block.ContainerViewer) (Menu, bool) {
+	menuMu.Lock()
+	defer menuMu.Unlock()
+	m, ok := openedMenus[v]
+	return m, ok
+}
+
 const (
 	// ContainerTypeChest is a container type for a chest.
 	ContainerTypeChest byte = iota

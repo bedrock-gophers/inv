@@ -48,11 +48,8 @@ type Closer interface {
 
 // SendMenu sends a menu to a player. The menu passed will be displayed to the player
 func SendMenu(p *player.Player, m Menu) {
-	menuMu.Lock()
-	defer menuMu.Unlock()
-
 	s := player_session(p)
-	if _, ok := openedMenus[s]; ok {
+	if _, ok := openedMenu(s); ok {
 		CloseContainer(p)
 	}
 
@@ -90,7 +87,10 @@ func SendMenu(p *player.Player, m Menu) {
 	})
 	session_sendInv(s, inv, uint32(nextID))
 	m.pos = pos
+
+	menuMu.Lock()
 	openedMenus[s] = m
+	menuMu.Unlock()
 }
 
 // blockPosToProtocol converts a cube.Pos to a protocol.BlockPos.
