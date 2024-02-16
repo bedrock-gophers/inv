@@ -34,7 +34,10 @@ func blockFromContainerKind(t byte) world.Block {
 }
 
 // PlaceFakeContainer places a fake container at the position and world passed.
-func PlaceFakeContainer(w *world.World, pos cube.Pos, kind byte) {
+func PlaceFakeContainer(w *world.World, pos cube.Pos) {
+	// TODO: Add support for other container types.
+	kind := ContainerTypeChest
+
 	w.SetBlock(pos, blockFromContainerKind(kind), nil)
 	fakeContainersPos[kind] = pos
 }
