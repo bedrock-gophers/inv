@@ -16,7 +16,7 @@ var (
 	fakeContainersPos = map[byte]cube.Pos{}
 )
 
-func openedMenu(v block.ContainerViewer) (Menu, bool) {
+func lastOpenedMenu(v block.ContainerViewer) (Menu, bool) {
 	menuMu.Lock()
 	defer menuMu.Unlock()
 	m, ok := lastMenu[v]

@@ -68,28 +68,30 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	}
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
 	blockPos := blockPosToProtocol(pos)
+	var nextID byte
+
 	if update {
-		m, ok := openedMenu(s)
-		if ok && m.pos != pos {
-			m.pos = pos
+		mn, ok := lastOpenedMenu(s)
+		if ok {
+			pos = mn.pos
+			nextID = mn.windowID
 		}
 	} else {
-		if m, ok := openedMenu(s); ok && m.pos != pos {
+		if m, ok := lastOpenedMenu(s); ok && m.pos != pos {
 			closeOldMenu(p, m)
 		}
-
-		s.ViewBlockUpdate(pos, blockFromContainerKind(m.kind), 0)
-		s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
-
-		data := createFakeInventoryNBT(m.name, m.kind)
-		data["x"], data["y"], data["z"] = blockPos.X(), blockPos.Y(), blockPos.Z()
-		session_writePacket(s, &packet.BlockActorData{
-			Position: blockPos,
-			NBTData:  data,
-		})
+		nextID = session_nextWindowID(s)
 	}
+	s.ViewBlockUpdate(pos, blockFromContainerKind(m.kind), 0)
+	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
 
-	nextID := session_nextWindowID(s)
+	data := createFakeInventoryNBT(m.name, m.kind)
+	data["x"], data["y"], data["z"] = blockPos.X(), blockPos.Y(), blockPos.Z()
+	session_writePacket(s, &packet.BlockActorData{
+		Position: blockPos,
+		NBTData:  data,
+	})
+
 	updatePrivateField(s, "openedPos", *atomic.NewValue(fakeContainersPos[m.kind]))
 	updatePrivateField(s, "openedWindow", *atomic.NewValue(inv))
 
