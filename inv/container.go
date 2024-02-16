@@ -6,6 +6,7 @@ import (
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/df-mc/dragonfly/server/world"
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"sync"
 )
 
@@ -56,6 +57,10 @@ func CloseContainer(p *player.Player) {
 	m, ok := openedMenus[s]
 	if ok {
 		if s != session.Nop {
+			session_writePacket(s, &packet.ContainerClose{
+				WindowID:   m.windowID,
+				ServerSide: true,
+			})
 			if closeable, ok := m.submittable.(Closer); ok {
 				closeable.Close(p)
 			}
@@ -64,5 +69,20 @@ func CloseContainer(p *player.Player) {
 		delete(openedMenus, s)
 	}
 	menuMu.Unlock()
+}
 
+func closeOldMenu(p *player.Player, mn Menu) {
+	s := player_session(p)
+	if s != session.Nop {
+		if closeable, ok := mn.submittable.(Closer); ok {
+			closeable.Close(p)
+		}
+		s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
+	}
+
+	menuMu.Lock()
+	if m, ok := openedMenus[s]; ok && m.windowID == mn.windowID {
+		delete(openedMenus, s)
+	}
+	menuMu.Unlock()
 }
