@@ -70,3 +70,19 @@ func CloseContainer(p *player.Player) {
 	}
 	menuMu.Unlock()
 }
+
+func closeOldMenu(p *player.Player, mn Menu) {
+	s := player_session(p)
+	if s != session.Nop {
+		if closeable, ok := mn.submittable.(Closer); ok {
+			closeable.Close(p)
+		}
+		s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
+	}
+
+	menuMu.Lock()
+	if m, ok := openedMenus[s]; ok && m.windowID == mn.windowID {
+		delete(openedMenus, s)
+	}
+	menuMu.Unlock()
+}

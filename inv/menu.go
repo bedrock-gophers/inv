@@ -50,6 +50,10 @@ type Closer interface {
 
 // SendMenu sends a menu to a player. The menu passed will be displayed to the player
 func SendMenu(p *player.Player, m Menu) {
+	sendMenu(p, m, false)
+}
+
+func sendMenu(p *player.Player, m Menu, update bool) {
 	s := player_session(p)
 
 	inv := inventory.New(len(m.items), func(slot int, before, after item.Stack) {})
@@ -57,26 +61,28 @@ func SendMenu(p *player.Player, m Menu) {
 	for i, it := range m.items {
 		_ = inv.SetItem(i, it)
 	}
-
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
-	if m, ok := openedMenu(s); ok && m.pos != pos {
-		menuMu.Lock()
-		delete(openedMenus, s)
-		menuMu.Unlock()
-		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
-	}
-
-	s.ViewBlockUpdate(pos, blockFromContainerKind(m.kind), 0)
-	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
-
 	blockPos := blockPosToProtocol(pos)
+	if update {
+		m, ok := openedMenu(s)
+		if ok && m.pos != pos {
+			m.pos = pos
+		}
+	} else {
+		if m, ok := openedMenu(s); ok && m.pos != pos {
+			closeOldMenu(p, m)
+		}
 
-	data := createFakeInventoryNBT(m.name, m.kind)
-	data["x"], data["y"], data["z"] = blockPos.X(), blockPos.Y(), blockPos.Z()
-	session_writePacket(s, &packet.BlockActorData{
-		Position: blockPos,
-		NBTData:  data,
-	})
+		s.ViewBlockUpdate(pos, blockFromContainerKind(m.kind), 0)
+		s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
+
+		data := createFakeInventoryNBT(m.name, m.kind)
+		data["x"], data["y"], data["z"] = blockPos.X(), blockPos.Y(), blockPos.Z()
+		session_writePacket(s, &packet.BlockActorData{
+			Position: blockPos,
+			NBTData:  data,
+		})
+	}
 
 	nextID := session_nextWindowID(s)
 	updatePrivateField(s, "openedPos", *atomic.NewValue(fakeContainersPos[m.kind]))
