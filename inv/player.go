@@ -39,13 +39,12 @@ func RedirectPlayerPackets(p *player.Player) {
 			}
 			switch pk := pkt.(type) {
 			case *packet.ContainerClose:
-				mn, ok := lastOpenedMenu(s)
+				mn, ok := lastMenu(s)
 				if ok && pk.WindowID == mn.windowID {
 					if closer, ok := mn.submittable.(Closer); ok {
 						closer.Close(p)
 					}
 					s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
-					continue
 				}
 			}
 

@@ -12,15 +12,29 @@ import (
 
 var (
 	menuMu            sync.Mutex
-	lastMenu          = map[block.ContainerViewer]Menu{}
+	lastMenus         = map[block.ContainerViewer]Menu{}
 	fakeContainersPos = map[byte]cube.Pos{}
 )
 
-func lastOpenedMenu(v block.ContainerViewer) (Menu, bool) {
+func lastMenu(v block.ContainerViewer) (Menu, bool) {
 	menuMu.Lock()
 	defer menuMu.Unlock()
-	m, ok := lastMenu[v]
+	m, ok := lastMenus[v]
 	return m, ok
+}
+
+func closeLastMenu(p *player.Player, mn Menu) {
+	s := player_session(p)
+	if s != session.Nop {
+		if closeable, ok := mn.submittable.(Closer); ok {
+			closeable.Close(p)
+		}
+		s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
+	}
+
+	menuMu.Lock()
+	delete(lastMenus, s)
+	menuMu.Unlock()
 }
 
 const (
@@ -54,7 +68,7 @@ func PlaceFakeContainer(w *world.World, pos cube.Pos) {
 func CloseContainer(p *player.Player) {
 	menuMu.Lock()
 	s := player_session(p)
-	m, ok := lastMenu[s]
+	m, ok := lastMenus[s]
 	if ok {
 		if s != session.Nop {
 			if closeable, ok := m.submittable.(Closer); ok {
@@ -68,14 +82,4 @@ func CloseContainer(p *player.Player) {
 		}
 	}
 	menuMu.Unlock()
-}
-
-func closeOldMenu(p *player.Player, mn Menu) {
-	s := player_session(p)
-	if s != session.Nop {
-		if closeable, ok := mn.submittable.(Closer); ok {
-			closeable.Close(p)
-		}
-		s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
-	}
 }

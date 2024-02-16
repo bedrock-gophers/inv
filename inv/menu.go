@@ -71,14 +71,14 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	var nextID byte
 
 	if update {
-		mn, ok := lastOpenedMenu(s)
+		mn, ok := lastMenu(s)
 		if ok {
 			pos = mn.pos
 			nextID = mn.windowID
 		}
 	} else {
-		if m, ok := lastOpenedMenu(s); ok && m.pos != pos {
-			closeOldMenu(p, m)
+		if m, ok := lastMenu(s); ok && m.pos != pos {
+			closeLastMenu(p, m)
 		}
 		nextID = session_nextWindowID(s)
 	}
@@ -110,7 +110,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	m.windowID = nextID
 
 	menuMu.Lock()
-	lastMenu[s] = m
+	lastMenus[s] = m
 	menuMu.Unlock()
 }
 
