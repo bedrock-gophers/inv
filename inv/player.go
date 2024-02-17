@@ -10,26 +10,24 @@ import (
 
 type conn struct {
 	session.Conn
-	closed bool
+	c chan struct{}
 }
 
 func (c *conn) ReadPacket() (packet.Packet, error) {
-	if c.closed {
-		return nil, fmt.Errorf("conn closed")
-	}
-	return &packet.ActorEvent{}, nil
+	<-c.c
+	return nil, fmt.Errorf("conn closed")
 }
 
 func RedirectPlayerPackets(p *player.Player) {
 	s := player_session(p)
 
 	c := fetchPrivateField[session.Conn](s, "conn")
-	cn := &conn{c, false}
+	cn := &conn{c, make(chan struct{})}
 	updatePrivateField[session.Conn](s, "conn", cn)
 
 	go func() {
 		defer func() {
-			cn.closed = true
+			cn.c <- struct{}{}
 		}()
 
 		for {
