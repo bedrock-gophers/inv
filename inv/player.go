@@ -5,6 +5,7 @@ import (
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+	"github.com/sirupsen/logrus"
 	_ "unsafe"
 )
 
@@ -27,6 +28,9 @@ func RedirectPlayerPackets(p *player.Player) {
 
 	go func() {
 		defer func() {
+			if err := recover(); err != nil {
+				logrus.Panic(err)
+			}
 			cn.c <- struct{}{}
 		}()
 
