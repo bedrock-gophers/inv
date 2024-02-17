@@ -10,8 +10,11 @@ import (
 )
 
 func init() {
-	world.RegisterBlock(hopper{})
-	world.RegisterBlock(dropper{})
+	for _, b := range []world.Block{hopper{}, dropper{}} {
+		if _, ok := world.BlockByName(b.EncodeBlock()); !ok {
+			world.RegisterBlock(b)
+		}
+	}
 }
 
 type nopContainer struct{}
