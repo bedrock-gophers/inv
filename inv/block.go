@@ -24,7 +24,6 @@ func (nopContainer) Inventory() *inventory.Inventory {
 
 type hopper struct{ nopContainer }
 type dropper struct{ nopContainer }
-type 
 
 func (hopper) Hash() uint64            { return 913214 }
 func (hopper) Model() world.BlockModel { return model.Solid{} }
@@ -37,5 +36,3 @@ func (dropper) Model() world.BlockModel { return model.Solid{} }
 func (dropper) EncodeBlock() (string, map[string]any) {
 	return "minecraft:dropper", map[string]any{"facing_direction": int32(0), "toggle_bit": false}
 }
-
-
