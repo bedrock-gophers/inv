@@ -49,6 +49,9 @@ func RedirectPlayerPackets(p *player.Player) {
 					s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
 				}
 			}
+			if s == nil || s == session.Nop {
+				return
+			}
 
 			if session_handlePacket(s, pkt) != nil {
 				return
