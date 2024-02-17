@@ -5,7 +5,6 @@ import (
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"time"
 	_ "unsafe"
 )
 
@@ -29,13 +28,11 @@ func RedirectPlayerPackets(p *player.Player) {
 	updatePrivateField[session.Conn](s, "conn", cn)
 
 	go func() {
-		t := time.NewTicker(time.Millisecond * 50)
 		defer func() {
-			t.Stop()
 			cn.closed = true
 		}()
 
-		for range t.C {
+		for {
 			pkt, err := c.ReadPacket()
 			if err != nil {
 				return
