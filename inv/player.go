@@ -29,7 +29,7 @@ func RedirectPlayerPackets(p *player.Player) {
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				logrus.Panic(err)
+				logrus.Print(err)
 			}
 			cn.c <- struct{}{}
 		}()
@@ -49,7 +49,7 @@ func RedirectPlayerPackets(p *player.Player) {
 					s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
 				}
 			}
-			if s == nil || s == session.Nop {
+			if s == nil || s == session.Nop || pkt == nil {
 				return
 			}
 
