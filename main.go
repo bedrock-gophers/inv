@@ -6,12 +6,9 @@ import (
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
-	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/item"
-	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/player/chat"
-	"github.com/sandertv/gophertunnel/minecraft/text"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -19,7 +16,7 @@ import (
 func main() {
 	log := logrus.New()
 	log.Formatter = &logrus.TextFormatter{ForceColors: true}
-	log.Level = logrus.DebugLevel
+	log.Level = logrus.InfoLevel
 
 	chat.Global.Subscribe(chat.StdoutSubscriber{})
 
@@ -32,7 +29,7 @@ func main() {
 	srv.CloseOnProgramEnd()
 
 	srv.Listen()
-	inv.PlaceFakeChest(srv.World(), cube.Pos{0, 255, 0})
+	inv.PlaceFakeContainer(srv.World(), cube.Pos{0, 255, 0})
 
 	for srv.Accept(accept) {
 
@@ -40,23 +37,30 @@ func main() {
 }
 
 func accept(p *player.Player) {
+	inv.RedirectPlayerPackets(p)
 	time.AfterFunc(1*time.Second, func() {
-		in := inventory.New(27, func(slot int, before, after item.Stack) {})
-		in.Handle(h{})
+		sub := MySubmittable{}
 
-		for i := range in.Slots() {
-			_ = in.SetItem(i, item.NewStack(block.StainedGlassPane{
-				Colour: item.ColourRed(),
-			}, 1))
+		var stacks = make([]item.Stack, 9)
+		for i := 0; i < 9; i++ {
+			stacks[i] = item.NewStack(block.StainedGlass{Colour: item.ColourRed()}, 1)
 		}
-		inv.ShowMenu(p, in, text.Colourf("<red>Test</red>"))
+
+		m := inv.NewMenu(sub, "test", inv.ContainerTypeDropper).WithStacks(stacks...)
+		inv.SendMenu(p, m)
+
+		time.AfterFunc(1*time.Second, func() {
+			//inv.UpdateMenu(p, inv.NewMenu(MySubmittable{}, "test").WithStacks(make([]item.Stack, 5)...))
+		})
 	})
 }
 
-type h struct {
-	inventory.NopHandler
+type MySubmittable struct{}
+
+func (m MySubmittable) Submit(p *player.Player, it item.Stack) {
+	fmt.Println("Submitted", it)
 }
 
-func (h) HandleTake(ctx *event.Context, slot int, it item.Stack) {
-	fmt.Println(slot)
+func (m MySubmittable) Close(p *player.Player) {
+	fmt.Println("Closed")
 }
