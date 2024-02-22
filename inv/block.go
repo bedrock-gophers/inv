@@ -7,11 +7,12 @@ import (
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/world"
+	"math"
 )
 
 func init() {
 	for _, b := range []world.Block{hopper{}, dropper{}} {
-		if bl, ok := world.BlockByName(b.EncodeBlock()); ok && bl.Hash() == 0 {
+		if bl, ok := world.BlockByName(b.EncodeBlock()); ok && bl.Hash() == math.MaxUint64 {
 			world.RegisterBlock(b)
 		}
 	}
