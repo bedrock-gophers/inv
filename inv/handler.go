@@ -13,7 +13,18 @@ type handler struct {
 	menu Menu
 }
 
-func (h handler) HandleTake(ctx *event.Context, slot int, it item.Stack) {
+// HandleTake ...
+func (h handler) HandleTake(ctx *event.Context, _ int, it item.Stack) {
 	ctx.Cancel()
 	h.menu.submittable.Submit(h.p, it)
+}
+
+// HandlePlace ...
+func (h handler) HandlePlace(ctx *event.Context, _ int, _ item.Stack) {
+	ctx.Cancel()
+}
+
+// HandleDrop ...
+func (h handler) HandleDrop(ctx *event.Context, _ int, _ item.Stack) {
+	ctx.Cancel()
 }
