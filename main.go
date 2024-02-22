@@ -41,8 +41,8 @@ func accept(p *player.Player) {
 	time.AfterFunc(1*time.Second, func() {
 		sub := MySubmittable{}
 
-		var stacks = make([]item.Stack, 27)
-		for i := 0; i < 27; i++ {
+		var stacks = make([]item.Stack, 54)
+		for i := 0; i < 54; i++ {
 			stacks[i] = item.NewStack(block.StainedGlass{Colour: item.ColourRed()}, 1)
 		}
 

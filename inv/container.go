@@ -17,6 +17,8 @@ const (
 	ContainerTypeHopper
 	// ContainerTypeDropper is a container type for a dropper.
 	ContainerTypeDropper
+	// ContainerTypeBarrel is a container type for a barrel.
+	ContainerTypeBarrel
 )
 
 func blockFromContainerKind(t byte) world.Block {
@@ -29,6 +31,8 @@ func blockFromContainerKind(t byte) world.Block {
 		return hopper{}
 	case ContainerTypeDropper:
 		return dropper{}
+	case ContainerTypeBarrel:
+		return block.NewBarrel()
 	default:
 		panic("invalid container type")
 	}

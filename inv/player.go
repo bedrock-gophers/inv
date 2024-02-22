@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
+	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"github.com/sirupsen/logrus"
 	_ "unsafe"
@@ -40,6 +41,29 @@ func RedirectPlayerPackets(p *player.Player) {
 				return
 			}
 			switch pk := pkt.(type) {
+			case *packet.ItemStackRequest:
+				for _, data := range pk.Requests {
+					for _, action := range data.Actions {
+						switch act := action.(type) {
+						case *protocol.TakeStackRequestAction:
+							if _, ok := lastMenu(s); ok {
+								act.Source.ContainerID = 7
+							}
+						case *protocol.PlaceStackRequestAction:
+							if _, ok := lastMenu(s); ok {
+								act.Source.ContainerID = 7
+							}
+						case *protocol.DropStackRequestAction:
+							if _, ok := lastMenu(s); ok {
+								act.Source.ContainerID = 7
+							}
+						case *protocol.SwapStackRequestAction:
+							if _, ok := lastMenu(s); ok {
+								act.Source.ContainerID = 7
+							}
+						}
+					}
+				}
 			case *packet.ContainerClose:
 				mn, ok := lastMenu(s)
 				if ok && pk.WindowID == mn.windowID {
