@@ -11,16 +11,14 @@ import (
 
 func init() {
 	for _, b := range []world.Block{hopper{}, dropper{}} {
-		if _, ok := world.BlockByName(b.EncodeBlock()); !ok {
-			world.RegisterBlock(b)
-		}
+		world.RegisterBlock(b)
 	}
 }
 
 type nopContainer struct{}
 
-func (nopContainer) AddViewer(v block.ContainerViewer, w *world.World, pos cube.Pos)    {}
-func (nopContainer) RemoveViewer(v block.ContainerViewer, w *world.World, pos cube.Pos) {}
+func (nopContainer) AddViewer(block.ContainerViewer, *world.World, cube.Pos)    {}
+func (nopContainer) RemoveViewer(block.ContainerViewer, *world.World, cube.Pos) {}
 func (nopContainer) Inventory() *inventory.Inventory {
 	return inventory.New(69, func(slot int, before, after item.Stack) {})
 }

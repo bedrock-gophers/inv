@@ -22,7 +22,9 @@ const (
 func blockFromContainerKind(t byte) world.Block {
 	switch t {
 	case ContainerTypeChest:
-		return block.NewChest()
+		b := block.NewChest()
+		b.Facing = 1
+		return b
 	case ContainerTypeHopper:
 		return hopper{}
 	case ContainerTypeDropper:
@@ -79,8 +81,23 @@ func CloseContainer(p *player.Player) {
 				WindowID:   m.windowID,
 				ServerSide: true,
 			})
-			s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
+
+			removeClientSideMenu(p, m)
 		}
 	}
 	menuMu.Unlock()
+}
+
+func removeClientSideMenu(p *player.Player, m Menu) {
+	s := player_session(p)
+	if s != session.Nop {
+		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
+		airPos := m.pos.Add(cube.Pos{0, 1})
+		s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
+		if m.paired {
+			s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), p.World().Block(m.pos), 0)
+			airPos = m.pos.Add(cube.Pos{1, 1})
+			s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
+		}
+	}
 }

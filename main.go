@@ -41,17 +41,13 @@ func accept(p *player.Player) {
 	time.AfterFunc(1*time.Second, func() {
 		sub := MySubmittable{}
 
-		var stacks = make([]item.Stack, 9)
-		for i := 0; i < 9; i++ {
+		var stacks = make([]item.Stack, 27)
+		for i := 0; i < 27; i++ {
 			stacks[i] = item.NewStack(block.StainedGlass{Colour: item.ColourRed()}, 1)
 		}
 
-		m := inv.NewMenu(sub, "test", inv.ContainerTypeDropper).WithStacks(stacks...)
+		m := inv.NewMenu(sub, "test", inv.ContainerTypeChest).WithStacks(stacks...)
 		inv.SendMenu(p, m)
-
-		time.AfterFunc(1*time.Second, func() {
-			//inv.UpdateMenu(p, inv.NewMenu(MySubmittable{}, "test").WithStacks(make([]item.Stack, 5)...))
-		})
 	})
 }
 

@@ -46,7 +46,7 @@ func RedirectPlayerPackets(p *player.Player) {
 					if closer, ok := mn.submittable.(Closer); ok {
 						closer.Close(p)
 					}
-					s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
+					removeClientSideMenu(p, mn)
 				}
 			}
 			if s == nil || s == session.Nop || pkt == nil {

@@ -11,6 +11,7 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"reflect"
+	"time"
 	"unsafe"
 	_ "unsafe"
 )
@@ -23,6 +24,7 @@ type Menu struct {
 	items       []item.Stack
 	pos         cube.Pos
 
+	paired   bool
 	windowID byte
 }
 
@@ -65,6 +67,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	for i, it := range m.items {
 		_ = inv.SetItem(i, it)
 	}
+
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
 	blockPos := blockPosToProtocol(pos)
 	var nextID byte
@@ -85,7 +88,15 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
 
 	data := createFakeInventoryNBT(m.name, m.kind)
-	data["x"], data["y"], data["z"] = blockPos.X(), blockPos.Y(), blockPos.Z()
+	if inv.Size() == 54 && m.kind == ContainerTypeChest {
+		m.paired = true
+		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), blockFromContainerKind(m.kind), 0)
+		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
+
+		data["pairz"] = int32(pos[2])
+		data["pairx"] = int32(pos[0] + 1)
+	}
+
 	session_writePacket(s, &packet.BlockActorData{
 		Position: blockPos,
 		NBTData:  data,
@@ -107,13 +118,15 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		containerType = protocol.ContainerTypeDropper
 	}
 
-	session_writePacket(s, &packet.ContainerOpen{
-		WindowID:                nextID,
-		ContainerPosition:       blockPos,
-		ContainerType:           containerType,
-		ContainerEntityUniqueID: -1,
+	time.AfterFunc(time.Millisecond*50, func() {
+		session_writePacket(s, &packet.ContainerOpen{
+			WindowID:                nextID,
+			ContainerPosition:       blockPos,
+			ContainerType:           containerType,
+			ContainerEntityUniqueID: -1,
+		})
+		session_sendInv(s, inv, uint32(nextID))
 	})
-	session_sendInv(s, inv, uint32(nextID))
 
 	m.pos = pos
 	m.windowID = nextID

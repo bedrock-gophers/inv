@@ -10,7 +10,6 @@ require (
 )
 
 require (
-	github.com/bedrock-gophers/nbtconv v0.0.0-20240215023331-5bc285763fcc // indirect
 	github.com/brentp/intintmap v0.0.0-20190211203843-30dc0ade9af9 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/df-mc/goleveldb v1.1.9 // indirect
@@ -22,7 +21,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.6 // indirect
 	github.com/muhammadmuzzammil1998/jsonc v1.0.0 // indirect
-	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sandertv/go-raknet v1.12.1 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
