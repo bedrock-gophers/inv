@@ -41,4 +41,4 @@ To display the inventory menu to a player, use the inv.SendMenu function. Here's
 // The 'p' variable represents the targeted player.
 inv.SendMenu(p, m)
 ```
-This code sends the inventory menu to the specified player with the provided title.
+This code sends the inventory menu to the specified player.
