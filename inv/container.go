@@ -103,5 +103,6 @@ func removeClientSideMenu(p *player.Player, m Menu) {
 			airPos = m.pos.Add(cube.Pos{1, 1})
 			s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
 		}
+		delete(lastMenus, s)
 	}
 }
