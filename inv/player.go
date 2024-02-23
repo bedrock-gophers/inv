@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
+	"github.com/getsentry/sentry-go"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"github.com/sirupsen/logrus"
 	_ "unsafe"
 )
 
@@ -30,7 +30,7 @@ func RedirectPlayerPackets(p *player.Player) {
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				logrus.Print(err)
+				sentry.CurrentHub().Clone().Recover(err)
 			}
 			cn.c <- struct{}{}
 		}()
