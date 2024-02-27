@@ -73,9 +73,6 @@ func RedirectPlayerPackets(p *player.Player) {
 					removeClientSideMenu(p, mn)
 				}
 			}
-			if s == nil || s == session.Nop || pkt == nil {
-				return
-			}
 
 			if session_handlePacket(s, pkt) != nil {
 				return
