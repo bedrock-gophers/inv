@@ -57,7 +57,7 @@ func closeLastMenu(p *player.Player, mn Menu) {
 		if closeable, ok := mn.submittable.(Closer); ok {
 			closeable.Close(p)
 		}
-		s.ViewBlockUpdate(mn.pos, p.World().Block(mn.pos), 0)
+		removeClientSideMenu(p, mn)
 	}
 
 	menuMu.Lock()
