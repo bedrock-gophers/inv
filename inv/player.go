@@ -7,6 +7,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+	"runtime/debug"
 	_ "unsafe"
 )
 
@@ -31,6 +32,7 @@ func RedirectPlayerPackets(p *player.Player) {
 		defer func() {
 			if err := recover(); err != nil {
 				sentry.CurrentHub().Clone().Recover(err)
+				fmt.Println(err, string(debug.Stack()))
 			}
 			cn.c <- struct{}{}
 		}()
