@@ -77,6 +77,11 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		if ok {
 			pos = mn.pos
 			nextID = mn.windowID
+
+			if mn.paired && !m.paired {
+				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), block.Air{}, 0)
+				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
+			}
 		}
 	} else {
 		if m, ok := lastMenu(s); ok && m.pos != pos {
