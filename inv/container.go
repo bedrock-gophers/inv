@@ -21,7 +21,7 @@ const (
 	ContainerTypeBarrel
 )
 
-func blockFromContainerKind(t byte) world.Block {
+func blockFromContainer(t byte) world.Block {
 	switch t {
 	case ContainerTypeChest:
 		b := block.NewChest()

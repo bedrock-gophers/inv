@@ -19,7 +19,7 @@ import (
 // Menu is a menu that can be sent to a player. It can be used to display a custom inventory to a player.
 type Menu struct {
 	name        string
-	kind        byte
+	container   byte
 	submittable Submittable
 	items       []item.Stack
 	pos         cube.Pos
@@ -28,9 +28,9 @@ type Menu struct {
 	windowID byte
 }
 
-// NewMenu creates a new menu with the submittable passed, the name passed and the kind passed.
-func NewMenu(submittable Submittable, name string, kind byte) Menu {
-	return Menu{name: name, submittable: submittable, kind: kind}
+// NewMenu creates a new menu with the submittable passed, the name passed and the container passed.
+func NewMenu(submittable Submittable, name string, container byte) Menu {
+	return Menu{name: name, submittable: submittable, container: container}
 }
 
 // WithStacks sets the stacks of the menu to the stacks passed.
@@ -89,13 +89,13 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		}
 		nextID = session_nextWindowID(s)
 	}
-	s.ViewBlockUpdate(pos, blockFromContainerKind(m.kind), 0)
+	s.ViewBlockUpdate(pos, blockFromContainer(m.container), 0)
 	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
 
-	data := createFakeInventoryNBT(m.name, m.kind)
-	if inv.Size() == 54 && m.kind == ContainerTypeChest {
+	data := createFakeInventoryNBT(m.name, m.container)
+	if inv.Size() == 54 && m.container == ContainerTypeChest {
 		m.paired = true
-		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), blockFromContainerKind(m.kind), 0)
+		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), blockFromContainer(m.container), 0)
 		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
 
 		data["pairz"] = int32(pos[2])
@@ -114,7 +114,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
 
 	var containerType byte
-	switch m.kind {
+	switch m.container {
 	case ContainerTypeChest:
 		containerType = protocol.ContainerTypeContainer
 	case ContainerTypeHopper:
