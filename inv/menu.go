@@ -26,7 +26,6 @@ type Menu struct {
 	items []item.Stack
 	pos   cube.Pos
 
-	paired   bool
 	windowID byte
 }
 
@@ -72,15 +71,15 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
 	blockPos := blockPosToProtocol(pos)
-	var nextID byte
 
+	var nextID byte
 	if update {
 		mn, ok := lastMenu(s)
 		if ok {
 			pos = mn.pos
 			nextID = mn.windowID
 
-			if mn.paired && !m.paired {
+			if c, ok := mn.container.(ChestContainer); ok && c.DoubleChest {
 				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), block.Air{}, 0)
 				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
 			}
@@ -97,7 +96,6 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	data := createFakeInventoryNBT(m.name, m.container)
 
 	if m.container.Size() == 54 {
-		m.paired = true
 		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), m.container.Block(), 0)
 		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
 
