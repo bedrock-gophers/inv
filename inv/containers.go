@@ -39,7 +39,7 @@ type HopperContainer struct{ Container }
 
 func (HopperContainer) Block() world.Block { return hopper{} }
 func (HopperContainer) Type() int          { return protocol.ContainerTypeHopper }
-func (HopperContainer) Size() int          { return 6 }
+func (HopperContainer) Size() int          { return 5 }
 
 type DropperContainer struct{ Container }
 
@@ -51,4 +51,4 @@ type BarrelContainer struct{ Container }
 
 func (BarrelContainer) Block() world.Block { return block.NewBarrel() }
 func (BarrelContainer) Type() int          { return protocol.ContainerBarrel }
-func (BarrelContainer) Size() int          { return 9 }
+func (BarrelContainer) Size() int          { return 27 }
