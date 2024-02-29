@@ -70,7 +70,7 @@ func removeClientSideMenu(p *player.Player, m Menu) {
 		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
 		airPos := m.pos.Add(cube.Pos{0, 1})
 		s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
-		if m.paired {
+		if c, ok := m.container.(ChestContainer); ok && c.DoubleChest {
 			s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), p.World().Block(m.pos), 0)
 			airPos = m.pos.Add(cube.Pos{1, 1})
 			s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)

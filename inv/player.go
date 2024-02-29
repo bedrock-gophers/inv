@@ -42,6 +42,7 @@ func RedirectPlayerPackets(p *player.Player) {
 			if err != nil {
 				return
 			}
+
 			switch pk := pkt.(type) {
 			case *packet.ItemStackRequest:
 				for _, data := range pk.Requests {

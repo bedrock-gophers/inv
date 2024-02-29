@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bedrock-gophers/inv/inv"
 	"github.com/df-mc/dragonfly/server"
-	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/item"
+	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/player/chat"
 	"github.com/sirupsen/logrus"
@@ -39,24 +38,14 @@ func main() {
 func accept(p *player.Player) {
 	inv.RedirectPlayerPackets(p)
 	time.AfterFunc(1*time.Second, func() {
-		sub := MySubmittable{}
+		testInv := inventory.New(54, func(slot int, before, after item.Stack) {
 
-		var stacks = make([]item.Stack, 54)
-		for i := 0; i < 54; i++ {
-			stacks[i] = item.NewStack(block.StainedGlass{Colour: item.ColourRed()}, 1)
-		}
+		})
+		_, _ = testInv.AddItem(item.NewStack(item.Diamond{}, 1))
+		testInv.Handle(inventory.NopHandler{})
 
-		m := inv.NewMenu(sub, "test", inv.ContainerTypeChest).WithStacks(stacks...)
+		m := inv.NewCustomMenu("test", inv.ChestContainer{DoubleChest: true}, testInv)
+		m.Inventory()
 		inv.SendMenu(p, m)
 	})
-}
-
-type MySubmittable struct{}
-
-func (m MySubmittable) Submit(p *player.Player, it item.Stack) {
-	fmt.Println("Submitted", it)
-}
-
-func (m MySubmittable) Close(p *player.Player) {
-	fmt.Println("Closed")
 }
