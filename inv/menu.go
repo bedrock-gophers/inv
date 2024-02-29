@@ -18,18 +18,20 @@ import (
 
 // Menu is a menu that can be sent to a player. It can be used to display a custom inventory to a player.
 type Menu struct {
-	name        string
-	container   byte
+	name      string
+	container Container
+
 	submittable Submittable
-	items       []item.Stack
-	pos         cube.Pos
+
+	items []item.Stack
+	pos   cube.Pos
 
 	paired   bool
 	windowID byte
 }
 
 // NewMenu creates a new menu with the submittable passed, the name passed and the container passed.
-func NewMenu(submittable Submittable, name string, container byte) Menu {
+func NewMenu(submittable Submittable, name string, container Container) Menu {
 	return Menu{name: name, submittable: submittable, container: container}
 }
 
@@ -62,7 +64,7 @@ func UpdateMenu(p *player.Player, m Menu) {
 func sendMenu(p *player.Player, m Menu, update bool) {
 	s := player_session(p)
 
-	inv := inventory.New(len(m.items), func(slot int, before, after item.Stack) {})
+	inv := inventory.New(m.container.Size(), func(slot int, before, after item.Stack) {})
 	inv.Handle(handler{p: p, menu: m})
 	for i, it := range m.items {
 		_ = inv.SetItem(i, it)
@@ -89,13 +91,14 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		}
 		nextID = session_nextWindowID(s)
 	}
-	s.ViewBlockUpdate(pos, blockFromContainer(m.container), 0)
+	s.ViewBlockUpdate(pos, m.container.Block(), 0)
 	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
 
 	data := createFakeInventoryNBT(m.name, m.container)
-	if inv.Size() == 54 && m.container == ContainerTypeChest {
+
+	if m.container.Size() == 54 {
 		m.paired = true
-		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), blockFromContainer(m.container), 0)
+		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), m.container.Block(), 0)
 		s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
 
 		data["pairz"] = int32(pos[2])
@@ -113,21 +116,11 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
 
-	var containerType byte
-	switch m.container {
-	case ContainerTypeChest:
-		containerType = protocol.ContainerTypeContainer
-	case ContainerTypeHopper:
-		containerType = protocol.ContainerTypeHopper
-	case ContainerTypeDropper:
-		containerType = protocol.ContainerTypeDropper
-	}
-
 	time.AfterFunc(time.Millisecond*50, func() {
 		session_writePacket(s, &packet.ContainerOpen{
 			WindowID:                nextID,
 			ContainerPosition:       blockPos,
-			ContainerType:           containerType,
+			ContainerType:           byte(m.container.Type()),
 			ContainerEntityUniqueID: -1,
 		})
 		session_sendInv(s, inv, uint32(nextID))
@@ -147,14 +140,14 @@ func blockPosToProtocol(pos cube.Pos) protocol.BlockPos {
 }
 
 // createFakeInventoryNBT creates a map of NBT data for a fake inventory with the name passed and the inventory
-func createFakeInventoryNBT(name string, kind byte) map[string]interface{} {
+func createFakeInventoryNBT(name string, container Container) map[string]interface{} {
 	m := map[string]interface{}{"CustomName": name}
-	switch kind {
-	case ContainerTypeChest:
+	switch container.Type() {
+	case protocol.ContainerTypeContainer:
 		m["id"] = "Chest"
-	case ContainerTypeHopper:
+	case protocol.ContainerTypeHopper:
 		m["id"] = "Hopper"
-	case ContainerTypeDropper:
+	case protocol.ContainerTypeDropper:
 		m["id"] = "Dropper"
 	}
 	return m

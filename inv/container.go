@@ -10,34 +10,6 @@ import (
 	"sync"
 )
 
-const (
-	// ContainerTypeChest is a container type for a chest.
-	ContainerTypeChest byte = iota
-	// ContainerTypeHopper is a container type for a hopper.
-	ContainerTypeHopper
-	// ContainerTypeDropper is a container type for a dropper.
-	ContainerTypeDropper
-	// ContainerTypeBarrel is a container type for a barrel.
-	ContainerTypeBarrel
-)
-
-func blockFromContainer(t byte) world.Block {
-	switch t {
-	case ContainerTypeChest:
-		b := block.NewChest()
-		b.Facing = 1
-		return b
-	case ContainerTypeHopper:
-		return hopper{}
-	case ContainerTypeDropper:
-		return dropper{}
-	case ContainerTypeBarrel:
-		return block.NewBarrel()
-	default:
-		panic("invalid container type")
-	}
-}
-
 var (
 	menuMu       sync.Mutex
 	lastMenus    = map[block.ContainerViewer]Menu{}
