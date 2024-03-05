@@ -10,6 +10,7 @@ import (
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+	"log"
 	"reflect"
 	"sync"
 	"time"
@@ -62,6 +63,12 @@ func UpdateMenu(p *player.Player, m Menu) {
 }
 
 func sendMenu(p *player.Player, m Menu, update bool) {
+	b := p.World().Block(containerPos)
+	if _, ok := b.(block.Chest); !ok {
+		log.Println("sendMenu: block at containerPos is not a chest")
+		return
+	}
+
 	s := player_session(p)
 
 	inv := inventory.New(m.container.Size(), func(slot int, before, after item.Stack) {})
