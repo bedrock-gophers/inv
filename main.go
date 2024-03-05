@@ -15,7 +15,7 @@ import (
 func main() {
 	log := logrus.New()
 	log.Formatter = &logrus.TextFormatter{ForceColors: true}
-	log.Level = logrus.InfoLevel
+	log.Level = logrus.DebugLevel
 
 	chat.Global.Subscribe(chat.StdoutSubscriber{})
 
@@ -45,7 +45,6 @@ func accept(p *player.Player) {
 		testInv.Handle(inventory.NopHandler{})
 
 		m := inv.NewCustomMenu("test", inv.ChestContainer{DoubleChest: true}, testInv)
-		m.Inventory()
 		inv.SendMenu(p, m)
 	})
 }

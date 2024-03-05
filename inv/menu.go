@@ -46,11 +46,6 @@ func (m Menu) WithStacks(stacks ...item.Stack) Menu {
 	return m
 }
 
-// Inventory returns the inventory of the container.
-func (m Menu) Inventory() *inventory.Inventory {
-	return m.inventory
-}
-
 // Submittable is a type that can be implemented by a Menu to be called when a menu is submitted.
 type Submittable interface {
 	Submit(p *player.Player, it item.Stack)
