@@ -49,19 +49,20 @@ func RedirectPlayerPackets(p *player.Player) {
 						switch act := action.(type) {
 						case *protocol.TakeStackRequestAction:
 							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = 7
+								act.Source.ContainerID = protocol.ContainerLevelEntity
 							}
 						case *protocol.PlaceStackRequestAction:
 							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = 7
+								act.Source.ContainerID = protocol.ContainerLevelEntity
 							}
 						case *protocol.DropStackRequestAction:
 							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = 7
+								act.Source.ContainerID = protocol.ContainerLevelEntity
+
 							}
 						case *protocol.SwapStackRequestAction:
 							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = 7
+								act.Source.ContainerID = protocol.ContainerLevelEntity
 							}
 						}
 					}

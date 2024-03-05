@@ -6,36 +6,62 @@ import (
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/df-mc/dragonfly/server/world"
+	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"sync"
 )
 
-var (
-	menuMu       sync.Mutex
-	lastMenus    = map[block.ContainerViewer]Menu{}
-	containerPos cube.Pos
-)
+// containerPos is the main container position. It is used as bait, for dragonfly to think that the player is
+// using that container.
+var containerPos cube.Pos
 
-func lastMenu(v block.ContainerViewer) (Menu, bool) {
-	menuMu.Lock()
-	defer menuMu.Unlock()
-	m, ok := lastMenus[v]
-	return m, ok
+// Container represents a container that can be opened by a player. Containers are blocks that can store items
+type Container interface {
+	Block() world.Block
+	Type() int
+	Size() int
 }
 
-func closeLastMenu(p *player.Player, mn Menu) {
-	s := player_session(p)
-	if s != session.Nop {
-		if closeable, ok := mn.submittable.(Closer); ok {
-			closeable.Close(p)
-		}
-		removeClientSideMenu(p, mn)
+// ContainerChest represents a chest container. It can be a single chest or a double chest.
+type ContainerChest struct{ DoubleChest bool }
+
+// Block ...
+func (ContainerChest) Block() world.Block {
+	b := block.NewChest()
+	b.Facing = 1
+	return b
+}
+
+// Type ...
+func (ContainerChest) Type() int { return protocol.ContainerTypeContainer }
+
+// Size ...
+func (c ContainerChest) Size() int {
+	if c.DoubleChest {
+		return 54
 	}
-
-	menuMu.Lock()
-	delete(lastMenus, s)
-	menuMu.Unlock()
+	return 27
 }
+
+// ContainerHopper represents a hopper container.
+type ContainerHopper struct{}
+
+func (ContainerHopper) Block() world.Block { return hopper{} }
+func (ContainerHopper) Type() int          { return protocol.ContainerTypeHopper }
+func (ContainerHopper) Size() int          { return 5 }
+
+// ContainerDropper represents a dispenser container.
+type ContainerDropper struct{}
+
+func (ContainerDropper) Block() world.Block { return dropper{} }
+func (ContainerDropper) Type() int          { return protocol.ContainerTypeDropper }
+func (ContainerDropper) Size() int          { return 9 }
+
+// ContainerBarrel represents a barrel container.
+type ContainerBarrel struct{}
+
+func (ContainerBarrel) Block() world.Block { return block.NewBarrel() }
+func (ContainerBarrel) Type() int          { return protocol.ContainerBarrel }
+func (ContainerBarrel) Size() int          { return 27 }
 
 // PlaceFakeContainer places a fake container at the position and world passed.
 func PlaceFakeContainer(w *world.World, pos cube.Pos) {
@@ -62,19 +88,4 @@ func CloseContainer(p *player.Player) {
 		}
 	}
 	menuMu.Unlock()
-}
-
-func removeClientSideMenu(p *player.Player, m Menu) {
-	s := player_session(p)
-	if s != session.Nop {
-		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
-		airPos := m.pos.Add(cube.Pos{0, 1})
-		s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
-		if c, ok := m.container.(ChestContainer); ok && c.DoubleChest {
-			s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), p.World().Block(m.pos), 0)
-			airPos = m.pos.Add(cube.Pos{1, 1})
-			s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
-		}
-		delete(lastMenus, s)
-	}
 }

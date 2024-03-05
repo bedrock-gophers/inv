@@ -46,7 +46,7 @@ func accept(p *player.Player) {
 			stacks[i] = item.NewStack(block.StainedGlass{Colour: item.ColourRed()}, 1)
 		}
 
-		m := inv.NewMenu(sub, "test", inv.ChestContainer{DoubleChest: true}).WithStacks(stacks...)
+		m := inv.NewMenu(sub, "test", inv.ContainerChest{DoubleChest: true}).WithStacks(stacks...)
 		inv.SendMenu(p, m)
 	})
 }

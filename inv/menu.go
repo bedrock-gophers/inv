@@ -11,6 +11,7 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"reflect"
+	"sync"
 	"time"
 	"unsafe"
 	_ "unsafe"
@@ -79,7 +80,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 			pos = mn.pos
 			nextID = mn.windowID
 
-			if c, ok := mn.container.(ChestContainer); ok && c.DoubleChest {
+			if c, ok := mn.container.(ContainerChest); ok && c.DoubleChest {
 				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), block.Air{}, 0)
 				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
 			}
@@ -130,6 +131,47 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	menuMu.Lock()
 	lastMenus[s] = m
 	menuMu.Unlock()
+}
+
+var (
+	menuMu    sync.Mutex
+	lastMenus = map[block.ContainerViewer]Menu{}
+)
+
+func lastMenu(v block.ContainerViewer) (Menu, bool) {
+	menuMu.Lock()
+	defer menuMu.Unlock()
+	m, ok := lastMenus[v]
+	return m, ok
+}
+
+func closeLastMenu(p *player.Player, mn Menu) {
+	s := player_session(p)
+	if s != session.Nop {
+		if closeable, ok := mn.submittable.(Closer); ok {
+			closeable.Close(p)
+		}
+		removeClientSideMenu(p, mn)
+	}
+
+	menuMu.Lock()
+	delete(lastMenus, s)
+	menuMu.Unlock()
+}
+
+func removeClientSideMenu(p *player.Player, m Menu) {
+	s := player_session(p)
+	if s != session.Nop {
+		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
+		airPos := m.pos.Add(cube.Pos{0, 1})
+		s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
+		if c, ok := m.container.(ContainerChest); ok && c.DoubleChest {
+			s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), p.World().Block(m.pos), 0)
+			airPos = m.pos.Add(cube.Pos{1, 1})
+			s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
+		}
+		delete(lastMenus, s)
+	}
 }
 
 // blockPosToProtocol converts a cube.Pos to a protocol.BlockPos.
