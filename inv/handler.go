@@ -25,6 +25,7 @@ func (h handler) HandlePlace(ctx *event.Context, _ int, _ item.Stack) {
 }
 
 // HandleDrop ...
-func (h handler) HandleDrop(ctx *event.Context, _ int, _ item.Stack) {
+func (h handler) HandleDrop(ctx *event.Context, _ int, it item.Stack) {
 	ctx.Cancel()
+	h.menu.submittable.Submit(h.p, it)
 }
