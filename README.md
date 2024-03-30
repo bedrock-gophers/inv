@@ -4,10 +4,10 @@ The Inv library allows the use of inventory menus, providing tools to create or 
 ## Creating an Inventory Menu
 To create an inventory menu using the Inv library, follow these steps:
 
-Place Fake Chest: Use the inv.PlaceFakeChest function to place a fake chest, essential for the library to function properly.
+Place Fake Chest: Use the inv.PlaceFakeContainer function to place a fake chest, essential for the library to function properly.
 ```go
 // Only run this once, after server start.
-inv.PlaceFakeChest(myWorld, cube.Pos{x, y, z})
+inv.PlaceFakeContainer(myWorld, cube.Pos{x, y, z})
 ```
 
 Handle Player Packets: inv requires you to use the RedirectPlayerPackets on player join whichs makes it possible
