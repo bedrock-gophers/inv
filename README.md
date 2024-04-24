@@ -10,7 +10,7 @@ Place Fake Chest: Use the inv.PlaceFakeContainer function to place a fake chest,
 inv.PlaceFakeContainer(myWorld, cube.Pos{x, y, z})
 ```
 
-Handle Player Packets: inv requires you to use the RedirectPlayerPackets on player join whichs makes it possible
+Handle Player Packets: inv requires you to use the RedirectPlayerPackets on player join which makes it possible
 for the library to handle incoming player packets, mostly use to handle container closing.
 ```go
 // The 'p' variable represents the targeted player.
