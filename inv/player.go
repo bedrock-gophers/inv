@@ -39,7 +39,7 @@ func RedirectPlayerPackets(p *player.Player) {
 
 			switch pk := pkt.(type) {
 			case *packet.ItemStackRequest:
-				handleItemStackRequest(s, p, pk.Requests)
+				handleItemStackRequest(s, pk.Requests)
 			case *packet.ContainerClose:
 				handleContainerClose(s, p, pk.WindowID)
 			}
@@ -61,7 +61,7 @@ func handleContainerClose(s *session.Session, p *player.Player, windowID byte) {
 	}
 }
 
-func handleItemStackRequest(s *session.Session, p *player.Player, req []protocol.ItemStackRequest) {
+func handleItemStackRequest(s *session.Session, req []protocol.ItemStackRequest) {
 	for _, data := range req {
 		for _, action := range data.Actions {
 			updateActionContainerID(action, s)
