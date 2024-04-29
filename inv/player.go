@@ -16,7 +16,7 @@ type conn struct {
 
 func (c *conn) ReadPacket() (packet.Packet, error) {
 	<-c.c
-	return nil, fmt.Errorf("conn closed")
+	return nil, fmt.Errorf("connection closed (github.com/bedrock-gophers/inv)")
 }
 
 func RedirectPlayerPackets(p *player.Player) {
@@ -36,39 +36,12 @@ func RedirectPlayerPackets(p *player.Player) {
 			if err != nil {
 				return
 			}
+
 			switch pk := pkt.(type) {
 			case *packet.ItemStackRequest:
-				for _, data := range pk.Requests {
-					for _, action := range data.Actions {
-						switch act := action.(type) {
-						case *protocol.TakeStackRequestAction:
-							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = protocol.ContainerLevelEntity
-							}
-						case *protocol.PlaceStackRequestAction:
-							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = protocol.ContainerLevelEntity
-							}
-						case *protocol.DropStackRequestAction:
-							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = protocol.ContainerLevelEntity
-
-							}
-						case *protocol.SwapStackRequestAction:
-							if _, ok := lastMenu(s); ok {
-								act.Source.ContainerID = protocol.ContainerLevelEntity
-							}
-						}
-					}
-				}
+				handleItemStackRequest(s, p, pk.Requests)
 			case *packet.ContainerClose:
-				mn, ok := lastMenu(s)
-				if ok && pk.WindowID == mn.windowID {
-					if closer, ok := mn.submittable.(Closer); ok {
-						closer.Close(p)
-					}
-					removeClientSideMenu(p, mn)
-				}
+				handleContainerClose(s, p, pk.WindowID)
 			}
 
 			if session_handlePacket(s, pkt) != nil {
@@ -76,6 +49,46 @@ func RedirectPlayerPackets(p *player.Player) {
 			}
 		}
 	}()
+}
+
+func handleContainerClose(s *session.Session, p *player.Player, windowID byte) {
+	mn, ok := lastMenu(s)
+	if ok && windowID == mn.windowID {
+		if closer, ok := mn.submittable.(Closer); ok {
+			closer.Close(p)
+		}
+		removeClientSideMenu(p, mn)
+	}
+}
+
+func handleItemStackRequest(s *session.Session, p *player.Player, req []protocol.ItemStackRequest) {
+	for _, data := range req {
+		for _, action := range data.Actions {
+			updateActionContainerID(action, s)
+		}
+	}
+}
+
+func updateActionContainerID(action protocol.StackRequestAction, s *session.Session) {
+	switch act := action.(type) {
+	case *protocol.TakeStackRequestAction:
+		if _, ok := lastMenu(s); ok {
+			act.Source.ContainerID = protocol.ContainerLevelEntity
+		}
+	case *protocol.PlaceStackRequestAction:
+		if _, ok := lastMenu(s); ok {
+			act.Source.ContainerID = protocol.ContainerLevelEntity
+		}
+	case *protocol.DropStackRequestAction:
+		if _, ok := lastMenu(s); ok {
+			act.Source.ContainerID = protocol.ContainerLevelEntity
+
+		}
+	case *protocol.SwapStackRequestAction:
+		if _, ok := lastMenu(s); ok {
+			act.Source.ContainerID = protocol.ContainerLevelEntity
+		}
+	}
 }
 
 // noinspection ALL
