@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
-	"github.com/getsentry/sentry-go"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"runtime/debug"
 	_ "unsafe"
 )
 
@@ -30,10 +28,6 @@ func RedirectPlayerPackets(p *player.Player) {
 
 	go func() {
 		defer func() {
-			if err := recover(); err != nil {
-				sentry.CurrentHub().Clone().Recover(err)
-				fmt.Println(err, string(debug.Stack()))
-			}
 			cn.c <- struct{}{}
 		}()
 
