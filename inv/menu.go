@@ -196,6 +196,8 @@ func createFakeInventoryNBT(name string, container Container) map[string]interfa
 		m["id"] = "Hopper"
 	case protocol.ContainerTypeDropper:
 		m["id"] = "Dropper"
+	default:
+		panic("should never happen")
 	}
 	return m
 }
