@@ -32,9 +32,11 @@ func RedirectPlayerPackets(p *player.Player, recovery func()) {
 			cn.c <- struct{}{}
 
 			if recovery != nil {
-				fmt.Println(recover())
-				fmt.Println(string(debug.Stack()))
-				recovery()
+				if err := recover(); err != nil {
+					fmt.Println(err)
+					fmt.Println(string(debug.Stack()))
+					recovery()
+				}
 			}
 		}()
 
