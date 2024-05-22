@@ -6,6 +6,7 @@ import (
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+	"runtime/debug"
 	_ "unsafe"
 )
 
@@ -19,7 +20,7 @@ func (c *conn) ReadPacket() (packet.Packet, error) {
 	return nil, fmt.Errorf("connection closed (github.com/bedrock-gophers/inv)")
 }
 
-func RedirectPlayerPackets(p *player.Player) {
+func RedirectPlayerPackets(p *player.Player, recovery func()) {
 	s := player_session(p)
 
 	c := fetchPrivateField[session.Conn](s, "conn")
@@ -29,6 +30,12 @@ func RedirectPlayerPackets(p *player.Player) {
 	go func() {
 		defer func() {
 			cn.c <- struct{}{}
+
+			if err := recover(); err != nil && recovery != nil {
+				recovery()
+				fmt.Println(err)
+				fmt.Println(string(debug.Stack()))
+			}
 		}()
 
 		for {
