@@ -21,11 +21,16 @@ type Container interface {
 	Size() int
 }
 
-// ContainerChest represents a chest container. It can be a single chest or a double chest.
-type ContainerChest struct{ DoubleChest bool }
+// ContainerChest represents a chest container. It can be a single chest, double chest or an enderchest.
+type ContainerChest struct{ DoubleChest bool; EnderChest bool }
 
 // Block ...
-func (ContainerChest) Block() world.Block {
+func (c ContainerChest) Block() world.Block {
+	if c.EnderChest {
+		b := block.NewEnderChest()
+		b.Facing = 1
+		return b
+	}
 	b := block.NewChest()
 	b.Facing = 1
 	return b
