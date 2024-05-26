@@ -105,7 +105,7 @@ func updateActionContainerID(action protocol.StackRequestAction, s *session.Sess
 
 		}
 	case *protocol.SwapStackRequestAction:
-		if act.Source.ContainerID != act.Destination.ContainerID {
+		if act.Source.ContainerID != act.Destination.ContainerID || act.Source.ContainerID == protocol.ContainerCursor {
 			break
 		}
 		if _, ok := lastMenu(s); ok {
