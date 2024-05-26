@@ -78,22 +78,36 @@ func handleItemStackRequest(s *session.Session, req []protocol.ItemStackRequest)
 	}
 }
 
+// updateActionContainerID updates the container ID of the given action based on the current menu state.
+// It is useful in case we use some unimplemented blocks such as hoppers.
 func updateActionContainerID(action protocol.StackRequestAction, s *session.Session) {
 	switch act := action.(type) {
 	case *protocol.TakeStackRequestAction:
+		if act.Source.ContainerID != act.Destination.ContainerID || act.Source.ContainerID == protocol.ContainerCursor {
+			break
+		}
 		if _, ok := lastMenu(s); ok {
 			act.Source.ContainerID = protocol.ContainerLevelEntity
 		}
 	case *protocol.PlaceStackRequestAction:
+		if act.Source.ContainerID != act.Destination.ContainerID || act.Source.ContainerID == protocol.ContainerCursor {
+			break
+		}
 		if _, ok := lastMenu(s); ok {
 			act.Source.ContainerID = protocol.ContainerLevelEntity
 		}
 	case *protocol.DropStackRequestAction:
+		if act.Source.ContainerID == protocol.ContainerInventory || act.Source.ContainerID == protocol.ContainerCursor {
+			break
+		}
 		if _, ok := lastMenu(s); ok {
 			act.Source.ContainerID = protocol.ContainerLevelEntity
 
 		}
 	case *protocol.SwapStackRequestAction:
+		if act.Source.ContainerID != act.Destination.ContainerID {
+			break
+		}
 		if _, ok := lastMenu(s); ok {
 			act.Source.ContainerID = protocol.ContainerLevelEntity
 		}
