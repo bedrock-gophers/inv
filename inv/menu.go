@@ -73,12 +73,8 @@ func UpdateMenu(p *player.Player, m Menu) {
 func sendMenu(p *player.Player, m Menu, update bool) {
 	s := player_session(p)
 
-	var inv *inventory.Inventory
-
 	if !m.custom {
-		inv.Handle(handler{p: p, menu: m})
-	} else {
-		inv = m.inventory
+		m.inventory.Handle(handler{p: p, menu: m})
 	}
 
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
@@ -121,7 +117,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	})
 
 	updatePrivateField(s, "openedPos", *atomic.NewValue(containerPos))
-	updatePrivateField(s, "openedWindow", *atomic.NewValue(inv))
+	updatePrivateField(s, "openedWindow", *atomic.NewValue(m.inventory))
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
@@ -133,7 +129,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 			ContainerType:           byte(m.container.Type()),
 			ContainerEntityUniqueID: -1,
 		})
-		session_sendInv(s, inv, uint32(nextID))
+		session_sendInv(s, m.inventory, uint32(nextID))
 	})
 
 	m.pos = pos
