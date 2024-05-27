@@ -45,3 +45,13 @@ type BarrelContainer struct{}
 func (BarrelContainer) Block() world.Block { return block.NewBarrel() }
 func (BarrelContainer) Type() int          { return protocol.ContainerBarrel }
 func (BarrelContainer) Size() int          { return 27 }
+
+type EnderChestContainer struct{}
+
+func (EnderChestContainer) Block() world.Block {
+	b := block.NewEnderChest()
+	b.Facing = 1
+	return b
+}
+func (EnderChestContainer) Type() int { return protocol.ContainerTypeContainer }
+func (EnderChestContainer) Size() int { return 27 }
