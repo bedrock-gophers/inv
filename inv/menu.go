@@ -24,25 +24,27 @@ type Menu struct {
 	inventory   *inventory.Inventory
 	submittable Submittable
 
-	items []item.Stack
-	pos   cube.Pos
+	pos cube.Pos
 
 	windowID byte
+	custom   bool
 }
 
 // NewMenu creates a new menu with the submittable passed, the name passed and the container passed.
 func NewMenu(submittable Submittable, name string, container Container) Menu {
-	return Menu{name: name, submittable: submittable, container: container}
+	return Menu{name: name, submittable: submittable, container: container, inventory: inventory.New(container.Size(), func(slot int, before, after item.Stack) {})}
 }
 
 // NewCustomMenu creates a new menu with the name, container and inventory.
 func NewCustomMenu(name string, container Container, inventory *inventory.Inventory) Menu {
-	return Menu{name: name, container: container, inventory: inventory}
+	return Menu{name: name, container: container, inventory: inventory, custom: true}
 }
 
 // WithStacks sets the stacks of the menu to the stacks passed.
 func (m Menu) WithStacks(stacks ...item.Stack) Menu {
-	m.items = stacks
+	for i, it := range stacks {
+		_ = m.inventory.SetItem(i, it)
+	}
 	return m
 }
 
@@ -66,18 +68,14 @@ func UpdateMenu(p *player.Player, m Menu) {
 	sendMenu(p, m, true)
 }
 
+// sendMenu sends the menu to a player.
 func sendMenu(p *player.Player, m Menu, update bool) {
 	s := player_session(p)
 
 	var inv *inventory.Inventory
 
-	// having this null means the inventory is preset
-	if m.inventory == nil {
-		inv = inventory.New(m.container.Size(), func(slot int, before, after item.Stack) {})
+	if !m.custom {
 		inv.Handle(handler{p: p, menu: m})
-		for i, it := range m.items {
-			_ = inv.SetItem(i, it)
-		}
 	} else {
 		inv = m.inventory
 	}

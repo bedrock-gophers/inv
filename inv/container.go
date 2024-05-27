@@ -16,6 +16,7 @@ var (
 	containerPos cube.Pos
 )
 
+// lastMenu ...
 func lastMenu(v block.ContainerViewer) (Menu, bool) {
 	menuMu.Lock()
 	defer menuMu.Unlock()
@@ -23,6 +24,7 @@ func lastMenu(v block.ContainerViewer) (Menu, bool) {
 	return m, ok
 }
 
+// closeLastMenu ...
 func closeLastMenu(p *player.Player, mn Menu) {
 	s := player_session(p)
 	if s != session.Nop {
@@ -64,6 +66,7 @@ func CloseContainer(p *player.Player) {
 	menuMu.Unlock()
 }
 
+// removeClientSideMenu ...
 func removeClientSideMenu(p *player.Player, m Menu) {
 	s := player_session(p)
 	if s != session.Nop {
