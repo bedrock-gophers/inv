@@ -42,6 +42,7 @@ func NewCustomMenu(name string, container Container, inventory *inventory.Invent
 
 // WithStacks sets the stacks of the menu to the stacks passed.
 func (m Menu) WithStacks(stacks ...item.Stack) Menu {
+	m.inventory.Clear()
 	for i, it := range stacks {
 		_ = m.inventory.SetItem(i, it)
 	}
