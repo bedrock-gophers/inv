@@ -23,22 +23,31 @@ type Menu struct {
 	name      string
 	container Container
 
+	inventory   *inventory.Inventory
 	submittable Submittable
 
-	items []item.Stack
-	pos   cube.Pos
+	pos cube.Pos
 
 	windowID byte
+	custom   bool
 }
 
 // NewMenu creates a new menu with the submittable passed, the name passed and the container passed.
 func NewMenu(submittable Submittable, name string, container Container) Menu {
-	return Menu{name: name, submittable: submittable, container: container}
+	return Menu{name: name, submittable: submittable, container: container, inventory: inventory.New(container.Size(), func(slot int, before, after item.Stack) {})}
+}
+
+// NewCustomMenu creates a new menu with the name, container and inventory.
+func NewCustomMenu(name string, container Container, inventory *inventory.Inventory) Menu {
+	return Menu{name: name, container: container, inventory: inventory, custom: true}
 }
 
 // WithStacks sets the stacks of the menu to the stacks passed.
 func (m Menu) WithStacks(stacks ...item.Stack) Menu {
-	m.items = stacks
+	m.inventory.Clear()
+	for i, it := range stacks {
+		_ = m.inventory.SetItem(i, it)
+	}
 	return m
 }
 
@@ -62,6 +71,7 @@ func UpdateMenu(p *player.Player, m Menu) {
 	sendMenu(p, m, true)
 }
 
+// sendMenu sends the menu to a player.
 func sendMenu(p *player.Player, m Menu, update bool) {
 	b := p.World().Block(containerPos)
 	if _, ok := b.(block.Chest); !ok {
@@ -71,10 +81,8 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 
 	s := player_session(p)
 
-	inv := inventory.New(m.container.Size(), func(slot int, before, after item.Stack) {})
-	inv.Handle(handler{p: p, menu: m})
-	for i, it := range m.items {
-		_ = inv.SetItem(i, it)
+	if !m.custom {
+		m.inventory.Handle(handler{p: p, menu: m})
 	}
 
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
@@ -117,7 +125,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	})
 
 	updatePrivateField(s, "openedPos", *atomic.NewValue(containerPos))
-	updatePrivateField(s, "openedWindow", *atomic.NewValue(inv))
+	updatePrivateField(s, "openedWindow", *atomic.NewValue(m.inventory))
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
@@ -129,7 +137,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 			ContainerType:           byte(m.container.Type()),
 			ContainerEntityUniqueID: -1,
 		})
-		session_sendInv(s, inv, uint32(nextID))
+		session_sendInv(s, m.inventory, uint32(nextID))
 	})
 
 	m.pos = pos
