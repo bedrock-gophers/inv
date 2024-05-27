@@ -46,6 +46,10 @@ func RedirectPlayerPackets(p *player.Player, recovery func()) {
 				return
 			}
 
+			if pkt == nil {
+				continue
+			}
+
 			switch pk := pkt.(type) {
 			case *packet.ItemStackRequest:
 				handleItemStackRequest(s, pk.Requests)
