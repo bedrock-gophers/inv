@@ -63,6 +63,17 @@ func (ContainerBarrel) Block() world.Block { return block.NewBarrel() }
 func (ContainerBarrel) Type() int          { return protocol.ContainerBarrel }
 func (ContainerBarrel) Size() int          { return 27 }
 
+// ContainerEnderChest represents a enderchest container.
+type ContainerEnderChest struct{}
+
+func (ContainerEnderChest) Block() world.Block {
+	b := block.NewEnderChest()
+	b.Facing = 1
+	return b
+}
+func (ContainerEnderChest) Type() int { return protocol.ContainerTypeContainer }
+func (ContainerEnderChest) Size() int { return 27 }
+
 // PlaceFakeContainer places a fake container at the position and world passed.
 func PlaceFakeContainer(w *world.World, pos cube.Pos) {
 	w.SetBlock(pos, block.NewChest(), nil)

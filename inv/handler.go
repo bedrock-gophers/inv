@@ -7,6 +7,7 @@ import (
 	"github.com/df-mc/dragonfly/server/player"
 )
 
+// handler is only used for regular Menu customMenus allow their own handler.
 type handler struct {
 	inventory.NopHandler
 	p    *player.Player
