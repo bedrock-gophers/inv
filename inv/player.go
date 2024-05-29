@@ -31,10 +31,10 @@ func RedirectPlayerPackets(p *player.Player, recovery func()) {
 		defer func() {
 			cn.c <- struct{}{}
 
-			if recovery != nil {
-				if err := recover(); err != nil {
-					fmt.Println(err)
-					fmt.Println(string(debug.Stack()))
+			if err := recover(); err != nil {
+				fmt.Println("(INV)", err)
+				fmt.Println(string(debug.Stack()))
+				if recovery != nil {
 					recovery()
 				}
 			}
@@ -57,7 +57,8 @@ func RedirectPlayerPackets(p *player.Player, recovery func()) {
 				handleContainerClose(s, p, pk.WindowID)
 			}
 
-			if session_handlePacket(s, pkt) != nil {
+			if err = session_handlePacket(s, pkt); err != nil {
+				fmt.Println("(INV) Error handling packet:", err)
 				return
 			}
 		}
