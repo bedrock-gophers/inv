@@ -71,6 +71,11 @@ func handleContainerClose(s *session.Session, p *player.Player, windowID byte) {
 		if closer, ok := mn.submittable.(Closer); ok {
 			closer.Close(p)
 		}
+
+		if mn.containerClose != nil {
+			mn.containerClose(mn.inventory)
+		}
+
 		removeClientSideMenu(p, mn)
 	}
 }
