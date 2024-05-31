@@ -128,6 +128,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 
 	updatePrivateField(s, "openedPos", *atomic.NewValue(containerPos))
 	updatePrivateField(s, "openedWindow", *atomic.NewValue(m.inventory))
+	updatePrivateField(s, "openedWindowID", atomic.NewUint32(uint32(nextID)))
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
