@@ -2,6 +2,7 @@ package inv
 
 import (
 	"fmt"
+	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -54,6 +55,10 @@ func RedirectPlayerPackets(p *player.Player, recovery func()) {
 			case *packet.ItemStackRequest:
 				handleItemStackRequest(s, pk.Requests)
 			case *packet.ContainerClose:
+				wID := fetchPrivateField[atomic.Uint32](s, "openedWindowID")
+				if wID.Load() != uint32(pk.WindowID) {
+					pk.WindowID = byte(wID.Load())
+				}
 				handleContainerClose(s, p, pk.WindowID)
 			}
 
