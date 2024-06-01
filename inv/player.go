@@ -2,12 +2,12 @@ package inv
 
 import (
 	"fmt"
-	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"runtime/debug"
+	"strings"
 	_ "unsafe"
 )
 
@@ -55,14 +55,13 @@ func RedirectPlayerPackets(p *player.Player, recovery func()) {
 			case *packet.ItemStackRequest:
 				handleItemStackRequest(s, pk.Requests)
 			case *packet.ContainerClose:
-				wID := fetchPrivateField[atomic.Uint32](s, "openedWindowID")
-				if wID.Load() != uint32(pk.WindowID) {
-					updatePrivateField(s, "openedWindowID", *atomic.NewUint32(uint32(pk.WindowID)))
-				}
 				handleContainerClose(s, p, pk.WindowID)
 			}
 
 			if err = session_handlePacket(s, pkt); err != nil {
+				if strings.Contains(err.Error(), "unexpected close request for unopened container") {
+					continue
+				}
 				fmt.Println("(INV) Error handling packet:", err)
 				return
 			}
