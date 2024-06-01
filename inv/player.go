@@ -57,7 +57,7 @@ func RedirectPlayerPackets(p *player.Player, recovery func()) {
 			case *packet.ContainerClose:
 				wID := fetchPrivateField[atomic.Uint32](s, "openedWindowID")
 				if wID.Load() != uint32(pk.WindowID) {
-					pk.WindowID = byte(wID.Load())
+					updatePrivateField(s, "openedWindowID", *atomic.NewUint32(uint32(pk.WindowID)))
 				}
 				handleContainerClose(s, p, pk.WindowID)
 			}
