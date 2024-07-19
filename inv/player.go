@@ -2,13 +2,14 @@ package inv
 
 import (
 	"fmt"
+	"runtime/debug"
+	"strings"
+	_ "unsafe"
+
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"runtime/debug"
-	"strings"
-	_ "unsafe"
 )
 
 type conn struct {
@@ -80,6 +81,9 @@ func handleContainerClose(s *session.Session, p *player.Player, windowID byte) {
 			mn.containerClose(mn.inventory)
 		}
 
+		removeClientSideMenu(p, mn)
+	} else {
+		p.OpenBlockContainer(mn.pos)
 		removeClientSideMenu(p, mn)
 	}
 }
