@@ -39,7 +39,7 @@ func handleContainerClose(ctx *event.Context, s *session.Session, p *player.Play
 		return
 	}
 	p.OpenBlockContainer(mn.pos)
-	removeClientSideMenu(p, mn)
+	closeLastMenu(p, mn)
 	ctx.Cancel()
 }
 
