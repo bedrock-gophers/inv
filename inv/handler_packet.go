@@ -1,73 +1,33 @@
 package inv
 
 import (
-	"fmt"
-	"runtime/debug"
-	"strings"
-	_ "unsafe"
-
+	"github.com/bedrock-gophers/intercept/intercept"
+	"github.com/bedrock-gophers/unsafe/unsafe"
+	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
-type conn struct {
-	session.Conn
-	c chan struct{}
+func init() {
+	intercept.Hook(packetHandler{})
 }
 
-func (c *conn) ReadPacket() (packet.Packet, error) {
-	<-c.c
-	return nil, fmt.Errorf("connection closed (github.com/bedrock-gophers/inv)")
+type packetHandler struct{}
+
+func (h packetHandler) HandleClientPacket(ctx *event.Context, p *player.Player, pk packet.Packet) {
+	s := unsafe.Session(p)
+	switch pkt := pk.(type) {
+	case *packet.ItemStackRequest:
+		handleItemStackRequest(s, pkt.Requests)
+	case *packet.ContainerClose:
+		handleContainerClose(s, p, pkt.WindowID)
+	}
 }
 
-func RedirectPlayerPackets(p *player.Player, recovery func()) {
-	s := player_session(p)
-
-	c := fetchPrivateField[session.Conn](s, "conn")
-	cn := &conn{c, make(chan struct{})}
-	updatePrivateField[session.Conn](s, "conn", cn)
-
-	go func() {
-		defer func() {
-			cn.c <- struct{}{}
-
-			if err := recover(); err != nil {
-				fmt.Println("(INV)", err)
-				fmt.Println(string(debug.Stack()))
-				if recovery != nil {
-					recovery()
-				}
-			}
-		}()
-
-		for {
-			pkt, err := c.ReadPacket()
-			if err != nil {
-				return
-			}
-
-			if pkt == nil {
-				continue
-			}
-
-			switch pk := pkt.(type) {
-			case *packet.ItemStackRequest:
-				handleItemStackRequest(s, pk.Requests)
-			case *packet.ContainerClose:
-				handleContainerClose(s, p, pk.WindowID)
-			}
-
-			if err = session_handlePacket(s, pkt); err != nil {
-				if strings.Contains(err.Error(), "unexpected close request for unopened container") {
-					continue
-				}
-				fmt.Println("(INV) Error handling packet:", err)
-				return
-			}
-		}
-	}()
+func (h packetHandler) HandleServerPacket(ctx *event.Context, p *player.Player, pk packet.Packet) {
+	// Do nothing
 }
 
 func handleContainerClose(s *session.Session, p *player.Player, windowID byte) {
@@ -131,8 +91,3 @@ func updateActionContainerID(action protocol.StackRequestAction, s *session.Sess
 		}
 	}
 }
-
-// noinspection ALL
-//
-//go:linkname session_handlePacket github.com/df-mc/dragonfly/server/session.(*Session).handlePacket
-func session_handlePacket(s *session.Session, pk packet.Packet) error

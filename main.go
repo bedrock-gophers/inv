@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/inv/inv"
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/block"
@@ -37,7 +38,7 @@ func main() {
 }
 
 func accept(p *player.Player) {
-	inv.RedirectPlayerPackets(p)
+	intercept.Intercept(p)
 	time.AfterFunc(1*time.Second, func() {
 		sub := MySubmittable{}
 
