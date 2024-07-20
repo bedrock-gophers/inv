@@ -87,7 +87,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		m.inventory.Handle(handler{p: p, menu: m})
 	}
 
-	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
+	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-1.5).Add(p.Position()))
 	blockPos := blockPosToProtocol(pos)
 
 	var nextID byte
@@ -131,6 +131,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
+	updatePrivateField(s, "openedWindowID", *atomic.NewUint32(uint32(nextID)))
 
 	time.AfterFunc(time.Millisecond*50, func() {
 		session_writePacket(s, &packet.ContainerOpen{
