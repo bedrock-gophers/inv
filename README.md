@@ -14,7 +14,7 @@ Handle Player Packets: inv requires you to use the RedirectPlayerPackets on play
 for the library to handle incoming player packets, mostly use to handle container closing.
 ```go
 // The 'p' variable represents the targeted player.
-inv.RedirectPlayerPackets(p)
+intercept.Intercept(p)
 ```
 
 Create Menu Submittable: Your menu requires a menu submittable, here's an example:
