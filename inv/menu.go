@@ -40,8 +40,8 @@ func NewMenu(submittable Submittable, name string, container Container) Menu {
 }
 
 // NewCustomMenu creates a new menu with the name, container and inventory.
-func NewCustomMenu(name string, container Container, inventory *inventory.Inventory, containerClose func(inv *inventory.Inventory)) Menu {
-	return Menu{name: name, container: container, inventory: inventory, containerClose: containerClose, custom: true}
+func NewCustomMenu(name string, container Container, inv *inventory.Inventory, containerClose func(inv *inventory.Inventory)) Menu {
+	return Menu{name: name, container: container, inventory: inv, containerClose: containerClose, custom: true}
 }
 
 // WithStacks sets the stacks of the menu to the stacks passed.
@@ -169,7 +169,9 @@ func closeLastMenu(p *player.Player, mn Menu) {
 		if closeable, ok := mn.submittable.(Closer); ok {
 			closeable.Close(p)
 		}
-
+		if mn.containerClose != nil {
+			mn.containerClose(mn.inventory)
+		}
 		removeClientSideMenu(p, mn)
 	}
 

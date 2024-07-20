@@ -34,20 +34,13 @@ func (h packetHandler) HandleServerPacket(ctx *event.Context, p *player.Player, 
 func handleContainerClose(ctx *event.Context, s *session.Session, p *player.Player, windowID byte) {
 	mn, ok := lastMenu(s)
 	currentID := fetchPrivateField[atomic.Uint32](s, "openedWindowID")
-	if ok && windowID == mn.windowID && byte(currentID.Load()) == windowID {
-		if closer, ok := mn.submittable.(Closer); ok {
-			closer.Close(p)
-		}
-
-		if mn.containerClose != nil {
-			mn.containerClose(mn.inventory)
-		}
-
-		removeClientSideMenu(p, mn)
-	} else {
-		p.OpenBlockContainer(mn.pos)
-		removeClientSideMenu(p, mn)
+	if ok && byte(currentID.Load()) == windowID && windowID == mn.windowID {
+		closeLastMenu(p, mn)
+		return
 	}
+	p.OpenBlockContainer(mn.pos)
+	removeClientSideMenu(p, mn)
+	ctx.Cancel()
 }
 
 func handleItemStackRequest(s *session.Session, req []protocol.ItemStackRequest) {
