@@ -3,6 +3,7 @@ package inv
 import (
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/unsafe/unsafe"
+	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
@@ -22,7 +23,7 @@ func (h packetHandler) HandleClientPacket(ctx *event.Context, p *player.Player, 
 	case *packet.ItemStackRequest:
 		handleItemStackRequest(s, pkt.Requests)
 	case *packet.ContainerClose:
-		handleContainerClose(s, p, pkt.WindowID)
+		handleContainerClose(ctx, s, p, pkt.WindowID)
 	}
 }
 
@@ -30,9 +31,10 @@ func (h packetHandler) HandleServerPacket(ctx *event.Context, p *player.Player, 
 	// Do nothing
 }
 
-func handleContainerClose(s *session.Session, p *player.Player, windowID byte) {
+func handleContainerClose(ctx *event.Context, s *session.Session, p *player.Player, windowID byte) {
 	mn, ok := lastMenu(s)
-	if ok && windowID == mn.windowID {
+	currentID := fetchPrivateField[atomic.Uint32](s, "openedWindowID")
+	if ok && windowID == mn.windowID && byte(currentID.Load()) == windowID {
 		if closer, ok := mn.submittable.(Closer); ok {
 			closer.Close(p)
 		}
