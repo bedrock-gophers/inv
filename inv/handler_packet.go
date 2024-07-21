@@ -33,8 +33,11 @@ func (h packetHandler) HandleServerPacket(ctx *event.Context, p *player.Player, 
 
 func handleContainerClose(ctx *event.Context, s *session.Session, p *player.Player, windowID byte) {
 	mn, ok := lastMenu(s)
+	if !ok {
+		return
+	}
 	currentID := fetchPrivateField[atomic.Uint32](s, "openedWindowID")
-	if ok && byte(currentID.Load()) == windowID && windowID == mn.windowID {
+	if byte(currentID.Load()) == windowID && windowID == mn.windowID {
 		closeLastMenu(p, mn)
 		return
 	}
