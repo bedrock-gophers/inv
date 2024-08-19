@@ -2,16 +2,16 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/inv/inv"
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/block"
-	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/player/chat"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 func main() {
@@ -30,8 +30,6 @@ func main() {
 	srv.CloseOnProgramEnd()
 
 	srv.Listen()
-	inv.PlaceFakeContainer(srv.World(), cube.Pos{0, 255, 0})
-
 	for srv.Accept(accept) {
 
 	}

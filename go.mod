@@ -6,8 +6,8 @@ toolchain go1.22.2
 
 require (
 	github.com/df-mc/atomic v1.10.0
-	github.com/df-mc/dragonfly v0.9.18-0.20240711165245-56780cad8ebb
-	github.com/sandertv/gophertunnel v1.39.0
+	github.com/df-mc/dragonfly v0.9.18-0.20240818101738-29a214b79bd5
+	github.com/sandertv/gophertunnel v1.40.1
 	github.com/sirupsen/logrus v1.9.3
 )
 
@@ -17,7 +17,7 @@ require (
 	github.com/brentp/intintmap v0.0.0-20190211203843-30dc0ade9af9 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/df-mc/goleveldb v1.1.9 // indirect
-	github.com/df-mc/worldupgrader v1.0.15 // indirect
+	github.com/df-mc/worldupgrader v1.0.16 // indirect
 	github.com/getsentry/sentry-go v0.27.0 // indirect
 	github.com/go-gl/mathgl v1.1.0 // indirect
 	github.com/go-jose/go-jose/v3 v3.0.3 // indirect

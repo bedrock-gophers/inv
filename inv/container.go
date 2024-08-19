@@ -2,17 +2,12 @@ package inv
 
 import (
 	"github.com/df-mc/dragonfly/server/block"
-	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
-
-// containerPos is the main container position. It is used as bait, for dragonfly to think that the player is
-// using that container.
-var containerPos cube.Pos
 
 // Container represents a container that can be opened by a player. Containers are blocks that can store items
 type Container interface {
@@ -73,12 +68,6 @@ func (ContainerEnderChest) Block() world.Block {
 }
 func (ContainerEnderChest) Type() int { return protocol.ContainerTypeContainer }
 func (ContainerEnderChest) Size() int { return 27 }
-
-// PlaceFakeContainer places a fake container at the position and world passed.
-func PlaceFakeContainer(w *world.World, pos cube.Pos) {
-	w.SetBlock(pos, block.NewChest(), nil)
-	containerPos = pos
-}
 
 // CloseContainer closes the container that the session passed is currently viewing.
 func CloseContainer(p *player.Player) {

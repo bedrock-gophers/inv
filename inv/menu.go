@@ -1,6 +1,12 @@
 package inv
 
 import (
+	"reflect"
+	"sync"
+	"time"
+	"unsafe"
+	_ "unsafe"
+
 	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
@@ -10,12 +16,6 @@ import (
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"log"
-	"reflect"
-	"sync"
-	"time"
-	"unsafe"
-	_ "unsafe"
 )
 
 // Menu is a menu that can be sent to a player. It can be used to display a custom inventory to a player.
@@ -75,12 +75,6 @@ func UpdateMenu(p *player.Player, m Menu) {
 
 // sendMenu sends the menu to a player.
 func sendMenu(p *player.Player, m Menu, update bool) {
-	b := p.World().Block(containerPos)
-	if _, ok := b.(block.Chest); !ok {
-		log.Println("sendMenu: block at containerPos is not a chest")
-		return
-	}
-
 	s := player_session(p)
 
 	if !m.custom {
@@ -126,7 +120,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		NBTData:  data,
 	})
 
-	updatePrivateField(s, "openedPos", *atomic.NewValue(containerPos))
+	updatePrivateField(s, "openedPos", *atomic.NewValue(pos))
 	updatePrivateField(s, "openedWindow", *atomic.NewValue(m.inventory))
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
