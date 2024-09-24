@@ -45,7 +45,7 @@ func (c ContainerChest) Size() int {
 // ContainerHopper represents a hopper container.
 type ContainerHopper struct{}
 
-func (ContainerHopper) Block() world.Block { return hopper{} }
+func (ContainerHopper) Block() world.Block { return block.NewHopper() }
 func (ContainerHopper) Type() int          { return protocol.ContainerTypeHopper }
 func (ContainerHopper) Size() int          { return 5 }
 

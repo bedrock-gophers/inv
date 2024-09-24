@@ -11,9 +11,12 @@ import (
 )
 
 func init() {
-	for _, b := range []world.Block{hopper{}, dropper{}} {
-		if bl, ok := world.BlockByName(b.EncodeBlock()); ok && bl.Hash() == math.MaxUint64 {
-			world.RegisterBlock(b)
+	for _, b := range []world.Block{dropper{}} {
+		if bl, ok := world.BlockByName(b.EncodeBlock()); ok {
+			hash, _ := bl.Hash()
+			if hash == math.MaxUint64 {
+				world.RegisterBlock(b)
+			}
 		}
 	}
 }
@@ -26,17 +29,10 @@ func (nopContainer) Inventory() *inventory.Inventory {
 	return inventory.New(69, func(slot int, before, after item.Stack) {})
 }
 
-type hopper struct{ nopContainer }
 type dropper struct{ nopContainer }
 
-func (h hopper) Hash() uint64          { return 932473 }
-func (hopper) Model() world.BlockModel { return model.Solid{} }
-func (hopper) EncodeBlock() (string, map[string]any) {
-	return "minecraft:hopper", map[string]any{"facing_direction": int32(0), "toggle_bit": false}
-}
-
-func (d dropper) Hash() uint64          { return 932472 }
-func (dropper) Model() world.BlockModel { return model.Solid{} }
+func (d dropper) Hash() (uint64, uint64) { return 932472, 932473 }
+func (dropper) Model() world.BlockModel  { return model.Solid{} }
 func (dropper) EncodeBlock() (string, map[string]any) {
 	return "minecraft:dropper", map[string]any{"facing_direction": int32(0), "toggle_bit": false}
 }

@@ -93,33 +93,33 @@ func handleItemStackRequest(s *session.Session, req []protocol.ItemStackRequest)
 func updateActionContainerID(action protocol.StackRequestAction, s *session.Session) {
 	switch act := action.(type) {
 	case *protocol.TakeStackRequestAction:
-		if act.Source.ContainerID != act.Destination.ContainerID || act.Source.ContainerID == protocol.ContainerCursor || act.Source.ContainerID == protocol.ContainerHotBar {
+		if act.Source.Container.ContainerID != act.Destination.Container.ContainerID || act.Source.Container.ContainerID == protocol.ContainerCursor || act.Source.Container.ContainerID == protocol.ContainerHotBar {
 			break
 		}
 		if _, ok := lastMenu(s); ok {
-			act.Source.ContainerID = protocol.ContainerLevelEntity
+			act.Source.Container.ContainerID = protocol.ContainerLevelEntity
 		}
 	case *protocol.PlaceStackRequestAction:
-		if act.Source.ContainerID != act.Destination.ContainerID || act.Source.ContainerID == protocol.ContainerCursor || act.Source.ContainerID == protocol.ContainerHotBar {
+		if act.Source.Container.ContainerID != act.Destination.Container.ContainerID || act.Source.Container.ContainerID == protocol.ContainerCursor || act.Source.Container.ContainerID == protocol.ContainerHotBar {
 			break
 		}
 		if _, ok := lastMenu(s); ok {
-			act.Source.ContainerID = protocol.ContainerLevelEntity
+			act.Source.Container.ContainerID = protocol.ContainerLevelEntity
 		}
 	case *protocol.DropStackRequestAction:
-		if act.Source.ContainerID == protocol.ContainerInventory || act.Source.ContainerID == protocol.ContainerCursor || act.Source.ContainerID == protocol.ContainerHotBar {
+		if act.Source.Container.ContainerID == protocol.ContainerInventory || act.Source.Container.ContainerID == protocol.ContainerCursor || act.Source.Container.ContainerID == protocol.ContainerHotBar {
 			break
 		}
 		if _, ok := lastMenu(s); ok {
-			act.Source.ContainerID = protocol.ContainerLevelEntity
+			act.Source.Container.ContainerID = protocol.ContainerLevelEntity
 
 		}
 	case *protocol.SwapStackRequestAction:
-		if act.Source.ContainerID != act.Destination.ContainerID || act.Source.ContainerID == protocol.ContainerCursor || act.Source.ContainerID == protocol.ContainerHotBar {
+		if act.Source.Container.ContainerID != act.Destination.Container.ContainerID || act.Source.Container.ContainerID == protocol.ContainerCursor || act.Source.Container.ContainerID == protocol.ContainerHotBar {
 			break
 		}
 		if _, ok := lastMenu(s); ok {
-			act.Source.ContainerID = protocol.ContainerLevelEntity
+			act.Source.Container.ContainerID = protocol.ContainerLevelEntity
 		}
 	}
 }
