@@ -12,6 +12,8 @@ require (
 )
 
 require (
+	github.com/bedrock-gophers/intercept v0.2.1-0.20240720172459-67ac87a82d56 // indirect
+	github.com/bedrock-gophers/unsafe v0.0.0-20240505195854-ea3c41bde898 // indirect
 	github.com/brentp/intintmap v0.0.0-20190211203843-30dc0ade9af9 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/df-mc/goleveldb v1.1.9 // indirect
@@ -30,7 +32,7 @@ require (
 	github.com/segmentio/fasthash v1.0.3 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.24.0 // indirect
-	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f // indirect
+	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/image v0.17.0 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
