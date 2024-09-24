@@ -1,6 +1,12 @@
 package inv
 
 import (
+	"reflect"
+	"sync"
+	"time"
+	"unsafe"
+	_ "unsafe"
+
 	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
@@ -10,12 +16,6 @@ import (
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"log"
-	"reflect"
-	"sync"
-	"time"
-	"unsafe"
-	_ "unsafe"
 )
 
 // Menu is a menu that can be sent to a player. It can be used to display a custom inventory to a player.
@@ -40,8 +40,8 @@ func NewMenu(submittable Submittable, name string, container Container) Menu {
 }
 
 // NewCustomMenu creates a new menu with the name, container and inventory.
-func NewCustomMenu(name string, container Container, inventory *inventory.Inventory, containerClose func(inv *inventory.Inventory)) Menu {
-	return Menu{name: name, container: container, inventory: inventory, containerClose: containerClose, custom: true}
+func NewCustomMenu(name string, container Container, inv *inventory.Inventory, containerClose func(inv *inventory.Inventory)) Menu {
+	return Menu{name: name, container: container, inventory: inv, containerClose: containerClose, custom: true}
 }
 
 // WithStacks sets the stacks of the menu to the stacks passed.
@@ -75,19 +75,13 @@ func UpdateMenu(p *player.Player, m Menu) {
 
 // sendMenu sends the menu to a player.
 func sendMenu(p *player.Player, m Menu, update bool) {
-	b := p.World().Block(containerPos)
-	if _, ok := b.(block.Chest); !ok {
-		log.Println("sendMenu: block at containerPos is not a chest")
-		return
-	}
-
 	s := player_session(p)
 
 	if !m.custom {
 		m.inventory.Handle(handler{p: p, menu: m})
 	}
 
-	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position()))
+	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-1.5).Add(p.Position()))
 	blockPos := blockPosToProtocol(pos)
 
 	var nextID byte
@@ -126,11 +120,12 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		NBTData:  data,
 	})
 
-	updatePrivateField(s, "openedPos", *atomic.NewValue(containerPos))
+	updatePrivateField(s, "openedPos", *atomic.NewValue(pos))
 	updatePrivateField(s, "openedWindow", *atomic.NewValue(m.inventory))
 
 	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
 	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
+	updatePrivateField(s, "openedWindowID", *atomic.NewUint32(uint32(nextID)))
 
 	time.AfterFunc(time.Millisecond*50, func() {
 		session_writePacket(s, &packet.ContainerOpen{
@@ -168,7 +163,9 @@ func closeLastMenu(p *player.Player, mn Menu) {
 		if closeable, ok := mn.submittable.(Closer); ok {
 			closeable.Close(p)
 		}
-
+		if mn.containerClose != nil {
+			mn.containerClose(mn.inventory)
+		}
 		removeClientSideMenu(p, mn)
 	}
 
