@@ -3,11 +3,11 @@ package inv
 import (
 	"reflect"
 	"sync"
+	"sync/atomic"
 	"time"
 	"unsafe"
 	_ "unsafe"
 
-	"github.com/df-mc/atomic"
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/item"
@@ -120,12 +120,24 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		NBTData:  data,
 	})
 
-	updatePrivateField(s, "openedPos", *atomic.NewValue(pos))
-	updatePrivateField(s, "openedWindow", *atomic.NewValue(m.inventory))
+	posPtr := atomic.Pointer[cube.Pos]{}
+	invPtr := atomic.Pointer[inventory.Inventory]{}
+	containerOpenedPtr := atomic.Bool{}
+	openedContainerIdPtr := atomic.Uint32{}
+	openedWindowIdPtr := atomic.Uint32{}
 
-	updatePrivateField(s, "containerOpened", *atomic.NewBool(true))
-	updatePrivateField(s, "openedContainerID", *atomic.NewUint32(uint32(nextID)))
-	updatePrivateField(s, "openedWindowID", *atomic.NewUint32(uint32(nextID)))
+	posPtr.Store(&pos)
+	invPtr.Store(m.inventory)
+	containerOpenedPtr.Store(true)
+	openedContainerIdPtr.Store(uint32(nextID))
+	openedWindowIdPtr.Store(uint32(nextID))
+
+	updatePrivateField(s, "openedPos", posPtr)
+	updatePrivateField(s, "openedWindow", invPtr)
+
+	updatePrivateField(s, "containerOpened", containerOpenedPtr)
+	updatePrivateField(s, "openedContainerID", openedContainerIdPtr)
+	updatePrivateField(s, "openedWindowID", openedWindowIdPtr)
 
 	time.AfterFunc(time.Millisecond*50, func() {
 		session_writePacket(s, &packet.ContainerOpen{
