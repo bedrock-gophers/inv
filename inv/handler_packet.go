@@ -3,7 +3,6 @@ package inv
 import (
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/unsafe/unsafe"
-	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -17,21 +16,23 @@ func init() {
 
 type packetHandler struct{}
 
-func (h packetHandler) HandleClientPacket(ctx *event.Context, p *player.Player, pk packet.Packet) {
+func (h packetHandler) HandleClientPacket(ctx *player.Context, pk packet.Packet) {
+	p := ctx.Val()
 	s := unsafe.Session(p)
 	switch pkt := pk.(type) {
 	case *packet.ItemStackRequest:
 		handleItemStackRequest(s, pkt.Requests)
 	case *packet.ContainerClose:
-		handleContainerClose(ctx, s, p, pkt.WindowID)
+		handleContainerClose(ctx, s, pkt.WindowID)
 	}
 }
 
-func (h packetHandler) HandleServerPacket(ctx *event.Context, p *player.Player, pk packet.Packet) {
+func (h packetHandler) HandleServerPacket(ctx *player.Context, pk packet.Packet) {
 	// Do nothing
 }
 
-func handleContainerClose(ctx *event.Context, s *session.Session, p *player.Player, windowID byte) {
+func handleContainerClose(ctx *player.Context, s *session.Session, windowID byte) {
+	p := ctx.Val()
 	mn, ok := lastMenu(s)
 	if !ok {
 		return
@@ -41,7 +42,7 @@ func handleContainerClose(ctx *event.Context, s *session.Session, p *player.Play
 		closeLastMenu(p, mn)
 		return
 	}
-	p.OpenBlockContainer(mn.pos)
+	p.OpenBlockContainer(mn.pos, p.Tx())
 	closeLastMenu(p, mn)
 	ctx.Cancel()
 }

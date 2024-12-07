@@ -78,7 +78,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	s := player_session(p)
 
 	if !m.custom {
-		m.inventory.Handle(handler{p: p, menu: m})
+		m.inventory.Handle(handler{menu: m})
 	}
 
 	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-1.5).Add(p.Position()))
@@ -189,13 +189,13 @@ func closeLastMenu(p *player.Player, mn Menu) {
 func removeClientSideMenu(p *player.Player, m Menu) {
 	s := player_session(p)
 	if s != session.Nop {
-		s.ViewBlockUpdate(m.pos, p.World().Block(m.pos), 0)
+		s.ViewBlockUpdate(m.pos, p.Tx().Block(m.pos), 0)
 		airPos := m.pos.Add(cube.Pos{0, 1})
-		s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
+		s.ViewBlockUpdate(airPos, p.Tx().Block(airPos), 0)
 		if c, ok := m.container.(ContainerChest); ok && c.DoubleChest {
-			s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), p.World().Block(m.pos), 0)
+			s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), p.Tx().Block(m.pos), 0)
 			airPos = m.pos.Add(cube.Pos{1, 1})
-			s.ViewBlockUpdate(airPos, p.World().Block(airPos), 0)
+			s.ViewBlockUpdate(airPos, p.Tx().Block(airPos), 0)
 		}
 		delete(lastMenus, s)
 	}
