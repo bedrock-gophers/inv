@@ -84,7 +84,7 @@ func CloseContainer(p *player.Player) {
 				ServerSide: true,
 			})
 
-			removeClientSideMenu(p, m)
+			removeClientSideMenu(s, p.Tx(), m)
 		}
 	}
 	menuMu.Unlock()

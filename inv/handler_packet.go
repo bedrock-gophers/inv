@@ -1,6 +1,7 @@
 package inv
 
 import (
+	"fmt"
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/unsafe/unsafe"
 	"github.com/df-mc/dragonfly/server/player"
@@ -32,7 +33,8 @@ func (h packetHandler) HandleClientPacket(ctx *intercept.Context, pk packet.Pack
 		case *packet.ItemStackRequest:
 			handleItemStackRequest(s, pkt.Requests)
 		case *packet.ContainerClose:
-			handleContainerClose(ctx, p, s, pkt.WindowID)
+			ctx.Cancel()
+			handleContainerClose(p, s, pkt.WindowID)
 		}
 	})
 }
@@ -41,7 +43,7 @@ func (h packetHandler) HandleServerPacket(ctx *intercept.Context, pk packet.Pack
 	// Do nothing
 }
 
-func handleContainerClose(ctx *intercept.Context, p *player.Player, s *session.Session, windowID byte) {
+func handleContainerClose(p *player.Player, s *session.Session, windowID byte) {
 	mn, ok := lastMenu(s)
 	if !ok {
 		return
@@ -53,7 +55,6 @@ func handleContainerClose(ctx *intercept.Context, p *player.Player, s *session.S
 	}
 	p.OpenBlockContainer(mn.pos, p.Tx())
 	closeLastMenu(p, mn)
-	ctx.Cancel()
 }
 
 func handleItemStackRequest(s *session.Session, req []protocol.ItemStackRequest) {

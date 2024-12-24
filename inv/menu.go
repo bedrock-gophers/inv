@@ -1,6 +1,8 @@
 package inv
 
 import (
+	unsafe2 "github.com/bedrock-gophers/unsafe/unsafe"
+	"github.com/df-mc/dragonfly/server/world"
 	"reflect"
 	"sync"
 	"sync/atomic"
@@ -170,7 +172,7 @@ func lastMenu(s *session.Session) (Menu, bool) {
 }
 
 func closeLastMenu(p *player.Player, mn Menu) {
-	s := player_session(p)
+	s := unsafe2.Session(p)
 	if s != session.Nop {
 		if closeable, ok := mn.submittable.(Closer); ok {
 			closeable.Close(p)
@@ -178,7 +180,7 @@ func closeLastMenu(p *player.Player, mn Menu) {
 		if mn.containerClose != nil {
 			mn.containerClose(mn.inventory)
 		}
-		removeClientSideMenu(p, mn)
+		removeClientSideMenu(s, p.Tx(), mn)
 	}
 
 	menuMu.Lock()
@@ -186,18 +188,14 @@ func closeLastMenu(p *player.Player, mn Menu) {
 	menuMu.Unlock()
 }
 
-func removeClientSideMenu(p *player.Player, m Menu) {
-	s := player_session(p)
-	if s != session.Nop {
-		s.ViewBlockUpdate(m.pos, p.Tx().Block(m.pos), 0)
-		airPos := m.pos.Add(cube.Pos{0, 1})
-		s.ViewBlockUpdate(airPos, p.Tx().Block(airPos), 0)
-		if c, ok := m.container.(ContainerChest); ok && c.DoubleChest {
-			s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), p.Tx().Block(m.pos), 0)
-			airPos = m.pos.Add(cube.Pos{1, 1})
-			s.ViewBlockUpdate(airPos, p.Tx().Block(airPos), 0)
-		}
-		delete(lastMenus, s)
+func removeClientSideMenu(s *session.Session, tx *world.Tx, m Menu) {
+	s.ViewBlockUpdate(m.pos, tx.Block(m.pos), 0)
+	airPos := m.pos.Add(cube.Pos{0, 1})
+	s.ViewBlockUpdate(airPos, tx.Block(airPos), 0)
+	if c, ok := m.container.(ContainerChest); ok && c.DoubleChest {
+		s.ViewBlockUpdate(m.pos.Add(cube.Pos{1, 0, 0}), tx.Block(m.pos), 0)
+		airPos = m.pos.Add(cube.Pos{1, 1})
+		s.ViewBlockUpdate(airPos, tx.Block(airPos), 0)
 	}
 }
 
