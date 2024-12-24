@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.3
 
 require (
-	github.com/bedrock-gophers/intercept v0.2.2
+	github.com/bedrock-gophers/intercept v0.2.3
 	github.com/bedrock-gophers/unsafe v0.0.0-20241207074844-086072b710f5
 	github.com/df-mc/dragonfly v0.9.20-0.20241224203752-918a90491313
 	github.com/sandertv/gophertunnel v1.43.0

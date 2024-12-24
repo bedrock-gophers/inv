@@ -3,7 +3,6 @@ package inv
 import (
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/unsafe/unsafe"
-	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
 	"github.com/df-mc/dragonfly/server/world"
@@ -25,7 +24,7 @@ func (h packetHandler) HandleClientPacket(ctx *intercept.Context, pk packet.Pack
 		return
 	}
 
-	ha := (*event.Context[*world.EntityHandle])(ctx).Val()
+	ha := ctx.Val()
 	ha.ExecWorld(func(tx *world.Tx, e world.Entity) {
 		p := e.(*player.Player)
 		s := unsafe.Session(p)
@@ -54,7 +53,7 @@ func handleContainerClose(ctx *intercept.Context, p *player.Player, s *session.S
 	}
 	p.OpenBlockContainer(mn.pos, p.Tx())
 	closeLastMenu(p, mn)
-	(*event.Context[*world.EntityHandle])(ctx).Cancel()
+	ctx.Cancel()
 }
 
 func handleItemStackRequest(s *session.Session, req []protocol.ItemStackRequest) {
