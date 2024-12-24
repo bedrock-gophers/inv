@@ -3,8 +3,10 @@ package inv
 import (
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/unsafe/unsafe"
+	"github.com/df-mc/dragonfly/server/event"
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/session"
+	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"sync/atomic"
@@ -16,23 +18,31 @@ func init() {
 
 type packetHandler struct{}
 
-func (h packetHandler) HandleClientPacket(ctx *player.Context, pk packet.Packet) {
-	p := ctx.Val()
-	s := unsafe.Session(p)
-	switch pkt := pk.(type) {
-	case *packet.ItemStackRequest:
-		handleItemStackRequest(s, pkt.Requests)
-	case *packet.ContainerClose:
-		handleContainerClose(ctx, s, pkt.WindowID)
+func (h packetHandler) HandleClientPacket(ctx *intercept.Context, pk packet.Packet) {
+	switch pk.(type) {
+	case *packet.ItemStackRequest, *packet.ContainerClose:
+	default:
+		return
 	}
+
+	ha := (*event.Context[*world.EntityHandle])(ctx).Val()
+	ha.ExecWorld(func(tx *world.Tx, e world.Entity) {
+		p := e.(*player.Player)
+		s := unsafe.Session(p)
+		switch pkt := pk.(type) {
+		case *packet.ItemStackRequest:
+			handleItemStackRequest(s, pkt.Requests)
+		case *packet.ContainerClose:
+			handleContainerClose(ctx, p, s, pkt.WindowID)
+		}
+	})
 }
 
-func (h packetHandler) HandleServerPacket(ctx *player.Context, pk packet.Packet) {
+func (h packetHandler) HandleServerPacket(ctx *intercept.Context, pk packet.Packet) {
 	// Do nothing
 }
 
-func handleContainerClose(ctx *player.Context, s *session.Session, windowID byte) {
-	p := ctx.Val()
+func handleContainerClose(ctx *intercept.Context, p *player.Player, s *session.Session, windowID byte) {
 	mn, ok := lastMenu(s)
 	if !ok {
 		return
@@ -44,7 +54,7 @@ func handleContainerClose(ctx *player.Context, s *session.Session, windowID byte
 	}
 	p.OpenBlockContainer(mn.pos, p.Tx())
 	closeLastMenu(p, mn)
-	ctx.Cancel()
+	(*event.Context[*world.EntityHandle])(ctx).Cancel()
 }
 
 func handleItemStackRequest(s *session.Session, req []protocol.ItemStackRequest) {

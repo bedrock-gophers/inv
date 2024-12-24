@@ -159,13 +159,13 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 
 var (
 	menuMu    sync.Mutex
-	lastMenus = map[block.ContainerViewer]Menu{}
+	lastMenus = map[*session.Session]Menu{}
 )
 
-func lastMenu(v block.ContainerViewer) (Menu, bool) {
+func lastMenu(s *session.Session) (Menu, bool) {
 	menuMu.Lock()
 	defer menuMu.Unlock()
-	m, ok := lastMenus[v]
+	m, ok := lastMenus[s]
 	return m, ok
 }
 
