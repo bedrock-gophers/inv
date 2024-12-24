@@ -1,7 +1,6 @@
 package inv
 
 import (
-	"fmt"
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/unsafe/unsafe"
 	"github.com/df-mc/dragonfly/server/player"
