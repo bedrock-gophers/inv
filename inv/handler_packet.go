@@ -38,7 +38,7 @@ func (h packetHandler) HandleClientPacket(ctx *intercept.Context, pk packet.Pack
 	})
 }
 
-func (h packetHandler) HandleServerPacket(ctx *intercept.Context, pk packet.Packet) {
+func (h packetHandler) HandleServerPacket(_ *intercept.Context, _ packet.Packet) {
 	// Do nothing
 }
 
