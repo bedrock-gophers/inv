@@ -32,8 +32,7 @@ func (h packetHandler) HandleClientPacket(ctx *intercept.Context, pk packet.Pack
 		case *packet.ItemStackRequest:
 			handleItemStackRequest(s, pkt.Requests)
 		case *packet.ContainerClose:
-			ctx.Cancel()
-			handleContainerClose(p, s, pkt.WindowID)
+			handleContainerClose(ctx, p, s, pkt.WindowID)
 		}
 	})
 }
@@ -42,7 +41,7 @@ func (h packetHandler) HandleServerPacket(_ *intercept.Context, _ packet.Packet)
 	// Do nothing
 }
 
-func handleContainerClose(p *player.Player, s *session.Session, windowID byte) {
+func handleContainerClose(ctx *intercept.Context, p *player.Player, s *session.Session, windowID byte) {
 	mn, ok := lastMenu(s)
 	if !ok {
 		return
@@ -52,6 +51,7 @@ func handleContainerClose(p *player.Player, s *session.Session, windowID byte) {
 		closeLastMenu(p, mn)
 		return
 	}
+	ctx.Cancel()
 	p.OpenBlockContainer(mn.pos, p.Tx())
 	closeLastMenu(p, mn)
 }
