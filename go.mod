@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.3
 
 require (
-	github.com/bedrock-gophers/intercept v0.2.3
+	github.com/bedrock-gophers/intercept v0.2.4
 	github.com/bedrock-gophers/unsafe v0.0.0-20241207074844-086072b710f5
 	github.com/df-mc/dragonfly v0.9.20-0.20241224203752-918a90491313
 	github.com/sandertv/gophertunnel v1.43.0
@@ -23,7 +23,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/muhammadmuzzammil1998/jsonc v1.0.0 // indirect
-	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/sandertv/go-raknet v1.14.2 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
