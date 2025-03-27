@@ -28,8 +28,17 @@ func main() {
 
 	srv.Listen()
 	for p := range srv.Accept() {
+		p.Handle(playerHandler{})
 		accept(p)
 	}
+}
+
+type playerHandler struct {
+	player.NopHandler
+}
+
+func (h playerHandler) HandleQuit(p *player.Player) {
+	inv.CloseContainer(p) // should be called whenever a player leaves the server to prevent memory leaks
 }
 
 func accept(p *player.Player) {
