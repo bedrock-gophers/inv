@@ -83,7 +83,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		m.inventory.Handle(handler{menu: m})
 	}
 
-	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-1.5).Add(p.Position()))
+	pos := cube.PosFromVec3(p.Rotation().Vec3().Mul(-2).Add(p.Position())).Add(cube.Pos{0, 2, 0})
 	blockPos := blockPosToProtocol(pos)
 
 	var nextID byte
