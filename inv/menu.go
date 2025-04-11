@@ -1,14 +1,15 @@
 package inv
 
 import (
-	unsafe2 "github.com/bedrock-gophers/unsafe/unsafe"
-	"github.com/df-mc/dragonfly/server/world"
 	"reflect"
 	"sync"
 	"sync/atomic"
 	"time"
 	"unsafe"
 	_ "unsafe"
+
+	unsafe2 "github.com/bedrock-gophers/unsafe/unsafe"
+	"github.com/df-mc/dragonfly/server/world"
 
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
@@ -92,11 +93,6 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		if ok {
 			pos = mn.pos
 			nextID = mn.windowID
-
-			if c, ok := mn.container.(ContainerChest); ok && c.DoubleChest {
-				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 0, 0}), block.Air{}, 0)
-				s.ViewBlockUpdate(pos.Add(cube.Pos{1, 1}), block.Air{}, 0)
-			}
 		}
 	} else {
 		if m, ok := lastMenu(s); ok && m.pos != pos {
@@ -104,6 +100,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		}
 		nextID = session_nextWindowID(s)
 	}
+
 	s.ViewBlockUpdate(pos, m.container.Block(), 0)
 	s.ViewBlockUpdate(pos.Add(cube.Pos{0, 1}), block.Air{}, 0)
 
@@ -141,15 +138,21 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	updatePrivateField(s, "openedContainerID", openedContainerIdPtr)
 	updatePrivateField(s, "openedWindowID", openedWindowIdPtr)
 
-	time.AfterFunc(time.Millisecond*50, func() {
-		session_writePacket(s, &packet.ContainerOpen{
-			WindowID:                nextID,
-			ContainerPosition:       blockPos,
-			ContainerType:           byte(m.container.Type()),
-			ContainerEntityUniqueID: -1,
+	if !update {
+		time.AfterFunc(time.Millisecond*100, func() {
+			session_writePacket(s, &packet.ContainerOpen{
+				WindowID:                nextID,
+				ContainerPosition:       blockPos,
+				ContainerType:           byte(m.container.Type()),
+				ContainerEntityUniqueID: -1,
+			})
+			session_sendInv(s, m.inventory, uint32(nextID))
 		})
-		session_sendInv(s, m.inventory, uint32(nextID))
-	})
+	} else {
+		for i, it := range m.inventory.Items() {
+			session_sendItem(s, it, i, uint32(nextID))
+		}
+	}
 
 	m.pos = pos
 	m.windowID = nextID
@@ -258,3 +261,8 @@ func session_nextWindowID(*session.Session) byte
 //
 //go:linkname session_sendInv github.com/df-mc/dragonfly/server/session.(*Session).sendInv
 func session_sendInv(*session.Session, *inventory.Inventory, uint32)
+
+// noinspection ALL
+//
+//go:linkname session_sendItem github.com/df-mc/dragonfly/server/session.(*Session).sendItem
+func session_sendItem(*session.Session, item.Stack, int, uint32)
