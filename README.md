@@ -7,8 +7,8 @@ To create an inventory menu using the Inv library, follow these steps:
 Handle Player Packets: inv requires you to use the RedirectPlayerPackets on player join which makes it possible
 for the library to handle incoming player packets, mostly use to handle container closing.
 ```go
-// The 'p' variable represents the targeted player.
-intercept.Intercept(p)
+// The 'conf' variable represents the server config.
+conf.Listeners = intercept.WrapListeners(conf.Listeners)
 ```
 
 Create Menu Submittable: Your menu requires a menu submittable, here's an example:
