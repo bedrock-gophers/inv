@@ -139,7 +139,7 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 	updatePrivateField(s, "openedWindowID", openedWindowIdPtr)
 
 	if !update {
-		time.AfterFunc(time.Millisecond*100, func() {
+		time.AfterFunc(time.Millisecond*500, func() {
 			session_writePacket(s, &packet.ContainerOpen{
 				WindowID:                nextID,
 				ContainerPosition:       blockPos,
