@@ -1,0 +1,18 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Inv Form Inventories",
+    "description": "form inventory UI for github.com/bedrock-gophers/inv.",
+    "uuid": "8b6a4786-19e2-44d7-a91a-40d5bfab8f68",
+    "version": [1, 0, 8],
+    "min_engine_version": [1, 20, 0]
+  },
+  "modules": [
+    {
+      "description": "Inv form inventory resources",
+      "type": "resources",
+      "uuid": "72194c8a-46f3-4f32-8aa0-2c4ecf357e70",
+      "version": [1, 0, 8]
+    }
+  ]
+}
