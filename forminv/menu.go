@@ -15,12 +15,21 @@ import (
 const (
 	// TitlePrefix is the formatting prefix used by the bundled resource pack to route a normal menu form to the
 	// inventory-shaped chest renderer. Titles passed to NewMenu are prefixed automatically.
-	TitlePrefix = "§c"
+	TitlePrefix      = "§c"
+	smallTitlePrefix = TitlePrefix + "\u200b"
+	largeTitlePrefix = TitlePrefix + "\u200c"
 
 	// SmallChestSlots is the number of buttons shown by a single chest layout.
 	SmallChestSlots = 27
 	// LargeChestSlots is the number of buttons shown by a double chest layout.
 	LargeChestSlots = 54
+)
+
+var (
+	// SmallChest is a single chest form inventory layout.
+	SmallChest = chest{size: SmallChestSlots, titlePrefix: smallTitlePrefix}
+	// LargeChest is a double chest form inventory layout.
+	LargeChest = chest{size: LargeChestSlots, titlePrefix: largeTitlePrefix}
 )
 
 // Button is a form button shown in an inventory slot.
@@ -49,44 +58,30 @@ func (s Slot) At(index int) Slot {
 	return s
 }
 
-// Container represents a form inventory layout.
-type Container interface {
-	Size() int
-}
-
-// ContainerChest represents a chest form inventory. It can be a single chest or a double chest.
-type ContainerChest struct{ DoubleChest bool }
-
-// Size returns the amount of slots in the chest form inventory.
-func (c ContainerChest) Size() int {
-	if c.DoubleChest {
-		return LargeChestSlots
-	}
-	return SmallChestSlots
+type chest struct {
+	size        int
+	titlePrefix string
 }
 
 // Menu is an inventory-shaped form menu that can be sent to a player.
 type Menu struct {
 	name        string
-	container   Container
+	chest       chest
 	submittable Submittable
 	slots       []Slot
 }
 
-// NewMenu creates a form inventory menu with the submittable, name and container passed.
-func NewMenu(submittable Submittable, name string, container Container) Menu {
-	if container == nil {
-		panic("forminv: nil container")
+// NewMenu creates a form inventory menu with the submittable, name and chest layout passed.
+func NewMenu(submittable Submittable, name string, chest chest) Menu {
+	if chest.size <= 0 || chest.titlePrefix == "" {
+		panic("forminv: invalid chest")
 	}
-	if size := container.Size(); size <= 0 {
-		panic(fmt.Sprintf("forminv: invalid container size %d", size))
-	}
-	return Menu{name: name, submittable: submittable, container: container}
+	return Menu{name: name, submittable: submittable, chest: chest}
 }
 
 // NewChestMenu creates a double chest form inventory menu.
 func NewChestMenu(submittable Submittable, name string) Menu {
-	return NewMenu(submittable, name, ContainerChest{DoubleChest: true})
+	return NewMenu(submittable, name, LargeChest)
 }
 
 // Submittable is implemented by form inventory menus to handle clicked buttons.
@@ -117,7 +112,7 @@ func (m Menu) WithButtons(buttons ...form.Button) Menu {
 // Use Slot.At or NewSlotAt to place slots at specific indexes. Unpositioned slots fill the first empty slots.
 // Empty slots are filled with placeholder buttons so the client renders a stable inventory grid.
 func (m Menu) WithSlots(slots ...Slot) Menu {
-	m.slots = layoutSlots(m.container.Size(), slots)
+	m.slots = layoutSlots(m.chest.size, slots)
 	return m
 }
 
@@ -125,7 +120,7 @@ func (m Menu) WithSlots(slots ...Slot) Menu {
 func (m Menu) Form() Form {
 	slots := m.slots
 	if slots == nil {
-		slots = layoutSlots(m.container.Size(), nil)
+		slots = layoutSlots(m.chest.size, nil)
 	}
 	m.slots = slots
 	return Form{menu: m}
@@ -178,7 +173,7 @@ func (f Form) SubmitJSON(b []byte, submitter form.Submitter, tx *world.Tx) error
 
 // Title returns the rendered form title.
 func (f Form) Title() string {
-	return TitlePrefix + f.menu.name
+	return f.menu.chest.titlePrefix + f.menu.name
 }
 
 // Buttons returns the rendered form buttons.

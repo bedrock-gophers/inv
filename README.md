@@ -76,7 +76,7 @@ func (MyFormMenu) Close(p *player.Player) {
     fmt.Println("Closed")
 }
 
-m := forminv.NewMenu(MyFormMenu{}, "test", forminv.ContainerChest{DoubleChest: true}).WithSlots(
+m := forminv.NewMenu(MyFormMenu{}, "test", forminv.LargeChest).WithSlots(
     forminv.NewSlot(4, "Nodebuff", "textures/items/diamond_sword", "nodebuff"),
     forminv.NewSlot(22, "Settings", "textures/ui/icon_setting", "settings"),
 )

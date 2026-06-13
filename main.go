@@ -86,7 +86,7 @@ func (m MyFormSubmittable) Close(p *player.Player) {
 }
 
 func newExampleFormMenu(count int) forminv.Menu {
-	return forminv.NewMenu(MyFormSubmittable{}, fmt.Sprintf("form test #%d", count), forminv.ContainerChest{DoubleChest: true}).WithSlots(
+	return forminv.NewMenu(MyFormSubmittable{}, fmt.Sprintf("form test #%d", count), forminv.LargeChest).WithSlots(
 		forminv.NewSlot(10, fmt.Sprintf("Resend #%d", count+1), "textures/items/diamond_sword", count),
 		forminv.NewSlot(13, "Ender Pearl", "textures/items/ender_pearl", "ender_pearl"),
 		forminv.NewSlot(16, "Close", "textures/ui/cancel", "close"),
