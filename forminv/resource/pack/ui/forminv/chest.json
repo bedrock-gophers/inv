@@ -171,18 +171,18 @@
           "controls": [
             {
               "default@forminv.slot_content": {
-                "$slot_texture": "textures/ui/item_cell"
+                "$slot_texture": "textures/ui/cell_image"
               }
             },
             {
               "hover@forminv.slot_content": {
-                "$slot_texture": "textures/ui/item_cell",
+                "$slot_texture": "textures/ui/cell_image",
                 "$hover_state": true
               }
             },
             {
               "pressed@forminv.slot_content": {
-                "$slot_texture": "textures/ui/item_cell",
+                "$slot_texture": "textures/ui/cell_image",
                 "$pressed_state": true
               }
             }
