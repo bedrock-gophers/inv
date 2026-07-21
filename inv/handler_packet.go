@@ -1,6 +1,9 @@
 package inv
 
 import (
+	"context"
+	"sync/atomic"
+
 	"github.com/bedrock-gophers/intercept/intercept"
 	"github.com/bedrock-gophers/unsafe/unsafe"
 	"github.com/df-mc/dragonfly/server/player"
@@ -8,7 +11,6 @@ import (
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-	"sync/atomic"
 )
 
 func init() {
@@ -24,9 +26,11 @@ func (h packetHandler) HandleClientPacket(ctx *intercept.Context, pk packet.Pack
 		return
 	}
 
-	ha, _ := ctx.Val().Handle()
-	ha.ExecWorld(func(tx *world.Tx, e world.Entity) {
-		p := e.(*player.Player)
+	ha, ok := ctx.Val().Handle()
+	if !ok {
+		return
+	}
+	_, _ = player.Call(context.Background(), ha, func(tx *world.Tx, p *player.Player) (struct{}, error) {
 		s := unsafe.Session(p)
 		switch pkt := pk.(type) {
 		case *packet.ItemStackRequest:
@@ -34,6 +38,7 @@ func (h packetHandler) HandleClientPacket(ctx *intercept.Context, pk packet.Pack
 		case *packet.ContainerClose:
 			handleContainerClose(ctx, p, s, pkt.WindowID)
 		}
+		return struct{}{}, nil
 	})
 }
 

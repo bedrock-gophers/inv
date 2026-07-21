@@ -7,18 +7,12 @@ import (
 	"github.com/df-mc/dragonfly/server/item"
 	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/world"
-	"math"
 )
 
 func init() {
-	for _, b := range []world.Block{dropper{}} {
-		if bl, ok := world.BlockByName(b.EncodeBlock()); ok {
-			hash, _ := bl.Hash()
-			if hash == math.MaxUint64 {
-				world.RegisterBlock(b)
-			}
-		}
-	}
+	// Dragonfly 0.11 finalizes the block registry on server creation and forbids lookups before then. Register the
+	// dropper implementation directly while the default registry is still in its mutable package-init phase.
+	world.RegisterBlock(dropper{})
 }
 
 type nopContainer struct{}

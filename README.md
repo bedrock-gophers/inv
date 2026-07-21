@@ -9,6 +9,9 @@ for the library to handle incoming player packets, mostly use to handle containe
 ```go
 // The 'conf' variable represents the server config.
 conf.Listeners = intercept.WrapListeners(conf.Listeners)
+
+srv := conf.New()
+intercept.Start(srv)
 ```
 
 Create Menu Submittable: Your menu requires a menu submittable, here's an example:
@@ -43,6 +46,42 @@ To display the inventory menu to a player, use the inv.SendMenu function. Here's
 inv.SendMenu(p, m)
 ```
 This code sends the inventory menu to the specified player.
+
+## Creating an Entity Inventory Menu
+Entity inventories support any positive slot count without placing fake blocks. They use an invisible client-side
+entity and the bundled [Inventory UI Resource Pack](https://github.com/tedo0627/InventoryUIResourcePack).
+
+Add the pack to your Dragonfly server config. Entity inventories also require the intercepted listeners shown above.
+
+```go
+import "github.com/bedrock-gophers/inv/entityinv"
+
+if err := entityinv.AddToConfig(&conf); err != nil {
+    log.Fatalln(err)
+}
+conf.ResourcesRequired = true
+```
+
+Create and send an arbitrary-sized menu:
+
+```go
+type MyEntityMenu struct{}
+
+func (MyEntityMenu) Submit(p *player.Player, stack item.Stack) {
+    fmt.Println("Submitted", stack)
+}
+
+func (MyEntityMenu) Close(p *player.Player) {
+    fmt.Println("Closed")
+}
+
+stacks := make([]item.Stack, 59)
+m := entityinv.NewMenu(MyEntityMenu{}, "59-slot Inventory", len(stacks)).WithStacks(stacks...)
+entityinv.SendMenu(p, m)
+```
+
+Menus above 54 slots get a scrollbar. Call `entityinv.UpdateMenu` to replace an open menu's contents, and call
+`entityinv.CloseContainer` when a player quits to release its session state.
 
 ## Creating a Form Inventory Menu
 Form inventories use Bedrock menu forms rendered as a chest by the bundled resource pack. Add the pack to your Dragonfly server config before creating the server:
