@@ -51,6 +51,13 @@ func (ContainerDropper) Block() world.Block { return dropper{} }
 func (ContainerDropper) Type() int          { return protocol.ContainerTypeDropper }
 func (ContainerDropper) Size() int          { return 9 }
 
+// ContainerAnvil represents an anvil container.
+type ContainerAnvil struct{}
+
+func (ContainerAnvil) Block() world.Block { return block.Anvil{Type: block.UndamagedAnvil()} }
+func (ContainerAnvil) Type() int          { return protocol.ContainerTypeAnvil }
+func (ContainerAnvil) Size() int          { return 3 }
+
 // ContainerBarrel represents a barrel container.
 type ContainerBarrel struct{}
 

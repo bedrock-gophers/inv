@@ -114,10 +114,12 @@ func sendMenu(p *player.Player, m Menu, update bool) {
 		data["pairx"] = int32(pos[0] + 1)
 	}
 
-	session_writePacket(s, &packet.BlockActorData{
-		Position: blockPos,
-		NBTData:  data,
-	})
+	if data != nil {
+		session_writePacket(s, &packet.BlockActorData{
+			Position: blockPos,
+			NBTData:  data,
+		})
+	}
 
 	posPtr := atomic.Pointer[cube.Pos]{}
 	invPtr := atomic.Pointer[inventory.Inventory]{}
@@ -217,6 +219,9 @@ func createFakeInventoryNBT(name string, container Container) map[string]interfa
 		m["id"] = "Hopper"
 	case protocol.ContainerTypeDropper:
 		m["id"] = "Dropper"
+	case protocol.ContainerTypeAnvil:
+		// Anvils are not block actors and do not have NBT to send to the client.
+		return nil
 	default:
 		panic("should never happen")
 	}
@@ -266,3 +271,8 @@ func session_sendInv(*session.Session, *inventory.Inventory, uint32)
 //
 //go:linkname session_sendItem github.com/df-mc/dragonfly/server/session.(*Session).sendItem
 func session_sendItem(*session.Session, item.Stack, int, uint32)
+
+// noinspection ALL
+//
+//go:linkname item_id github.com/df-mc/dragonfly/server/item.id
+func item_id(item.Stack) int32
